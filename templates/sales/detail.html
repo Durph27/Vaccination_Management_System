@@ -1,0 +1,94 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Hóa đơn HD#{{ sale.pk }}{% endblock %}
+{% block page_title %}Chi tiết hóa đơn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="javascript:history.back()" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+    <h1>Hóa đơn HD#{{ sale.pk }}</h1>
+    <p>{{ sale.created_at|date:"d/m/Y H:i" }}</p>
+  </div>
+  <span class="badge-status badge-{{ sale.status }}" style="font-size:14px;padding:8px 16px">
+    {{ sale.get_status_display }}
+  </span>
+</div>
+
+<div class="row g-4 justify-content-center">
+  <div class="col-lg-7">
+    <!-- Invoice card -->
+    <div class="vc-card">
+      <div style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-light));padding:28px 32px;color:#fff;border-radius:var(--radius) var(--radius) 0 0">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600">VaccineCare</div>
+            <div style="opacity:.7;font-size:13px">Hệ thống quản lý tiêm chủng</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:22px;font-weight:700">HD#{{ sale.pk }}</div>
+            <div style="opacity:.7;font-size:13px">{{ sale.created_at|date:"d/m/Y" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vc-card-body">
+        <div class="row">
+          <div class="col-6">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);font-weight:600;margin-bottom:6px">Người tiêm</div>
+            <div style="font-weight:600">{{ sale.vaccine_administration.appointment.candidate.full_name }}</div>
+            <div style="color:var(--text-mid);font-size:13px">{{ sale.vaccine_administration.appointment.candidate.phone|default:"—" }}</div>
+          </div>
+          <div class="col-6" style="text-align:right">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);font-weight:600;margin-bottom:6px">Trung tâm</div>
+            <div style="font-weight:600">{{ sale.vaccine_administration.appointment.center.name|default:"—" }}</div>
+            <div style="color:var(--text-mid);font-size:13px">{{ sale.vaccine_administration.appointment.center.hotline|default:"—" }}</div>
+          </div>
+        </div>
+
+        <hr style="margin:20px 0;border-color:var(--border)">
+
+        <!-- Item -->
+        <table class="vc-table" style="margin-bottom:0">
+          <thead>
+            <tr>
+              <th>Vaccine</th>
+              <th>Liều</th>
+              <th style="text-align:right">Đơn giá</th>
+              <th style="text-align:right">Thành tiền</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="font-weight:600">{{ sale.vaccine_administration.vaccine.name }}</div>
+                <div style="color:var(--text-light);font-size:12px">{{ sale.vaccine_administration.vaccine.manufacturer }}</div>
+              </td>
+              <td>Liều {{ sale.vaccine_administration.dose_number }}</td>
+              <td style="text-align:right">{{ sale.vaccine_administration.vaccine.price|floatformat:0 }} ₫</td>
+              <td style="text-align:right;font-weight:700">{{ sale.total_amount|floatformat:0 }} ₫</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="background:var(--bg);border-radius:var(--radius-sm);padding:16px 20px;margin-top:20px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:12px;color:var(--text-light)">Phương thức: <strong>{{ sale.get_payment_method_display }}</strong></div>
+            {% if sale.paid_at %}
+            <div style="font-size:12px;color:var(--text-light)">Thanh toán lúc: <strong>{{ sale.paid_at|date:"d/m/Y H:i" }}</strong></div>
+            {% endif %}
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px">Tổng cộng</div>
+            <div style="font-size:28px;font-weight:700;color:var(--primary);font-family:'Cormorant Garamond',serif">
+              {{ sale.total_amount|floatformat:0 }} ₫
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

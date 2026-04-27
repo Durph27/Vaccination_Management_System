@@ -1,0 +1,60 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ member.name }}{% endblock %}
+{% block page_title %}Hồ sơ nhân viên{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'staff:list' %}" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Danh sách
+    </a>
+    <h1>{{ member.name }}</h1>
+    <p>{{ member.get_role_display }} — {{ member.center.name|default:"Chưa phân công trung tâm" }}</p>
+  </div>
+</div>
+
+<div class="row g-4 justify-content-center">
+  <div class="col-lg-5">
+    <div class="vc-card">
+      <div class="profile-header" style="border-radius:var(--radius) var(--radius) 0 0">
+        <div class="profile-avatar-large">{{ member.name|first|upper }}</div>
+        <div>
+          <div class="profile-name">{{ member.name }}</div>
+          <div class="profile-meta">
+            {% if member.role == 'doctor' %}<i class="bi bi-person-badge"></i>
+            {% elif member.role == 'nurse' %}<i class="bi bi-heart-pulse"></i>
+            {% else %}<i class="bi bi-person-lines-fill"></i>{% endif %}
+            {{ member.get_role_display }}
+          </div>
+        </div>
+      </div>
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Trung tâm</span>
+          <span class="detail-value">{{ member.center.name|default:"—" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">{{ member.user.email|default:"—" }}</span>
+        </div>
+        {% if member.role == 'doctor' %}
+        <div class="detail-row">
+          <span class="detail-label">Chuyên môn</span>
+          <span class="detail-value">{{ member.doctor_profile.specialization|default:"—" }}</span>
+        </div>
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Chứng chỉ</span>
+          <span class="detail-value">{{ member.doctor_profile.license_number|default:"—" }}</span>
+        </div>
+        {% elif member.role == 'nurse' %}
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Chứng chỉ</span>
+          <span class="detail-value">{{ member.nurse_profile.certification|default:"—" }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

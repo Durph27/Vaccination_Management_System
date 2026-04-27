@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard Nhân viên{% endblock %}
+{% block page_title %}Bảng điều khiển{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="bi bi-people-fill"></i></div>
+    <div>
+      <div class="stat-value">{{ total_candidates }}</div>
+      <div class="stat-label">Người tiêm</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="bi bi-hourglass-split"></i></div>
+    <div>
+      <div class="stat-value">{{ pending_appointments }}</div>
+      <div class="stat-label">Chờ xác nhận</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon teal"><i class="bi bi-calendar2-check-fill"></i></div>
+    <div>
+      <div class="stat-value">{{ all_appointments|length }}</div>
+      <div class="stat-label">Lịch hẹn gần đây</div>
+    </div>
+  </div>
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-header">
+    <span class="vc-card-title">Lịch hẹn mới nhất</span>
+    <a href="{% url 'appointments:all_list' %}" class="btn-vc btn-outline-vc" style="font-size:13px">
+      Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+    </a>
+  </div>
+  <div class="vc-card-body" style="padding-top:8px">
+    {% if all_appointments %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Người tiêm</th>
+          <th>Ngày hẹn</th>
+          <th>Trung tâm</th>
+          <th>Trạng thái</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for apt in all_appointments %}
+        <tr>
+          <td style="color:var(--text-light)">#{{ apt.pk }}</td>
+          <td style="font-weight:500">{{ apt.candidate.full_name }}</td>
+          <td>{{ apt.appointment_date|date:"d/m/Y" }} {{ apt.appointment_time|time:"H:i" }}</td>
+          <td>{{ apt.center.name|default:"—" }}</td>
+          <td><span class="badge-status badge-{{ apt.status }}">{{ apt.get_status_display }}</span></td>
+          <td>
+            <a href="{% url 'appointments:detail' apt.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px; font-size:12px">Chi tiết</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state"><i class="bi bi-calendar2-x"></i><h5>Chưa có lịch hẹn nào</h5></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

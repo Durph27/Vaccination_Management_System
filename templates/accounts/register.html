@@ -1,0 +1,70 @@
+{% extends 'base/base.html' %}
+
+{% block guest_content %}
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-left-logo">
+      <div class="auth-logo-icon"><i class="bi bi-shield-plus-fill" style="color:#fff"></i></div>
+      <span class="auth-logo-name">TOC</span>
+    </div>
+    <h1 class="auth-headline">
+      Bắt đầu hành trình <strong>bảo vệ sức khỏe</strong> của bạn
+    </h1>
+    <p class="auth-subtext">
+      Tạo tài khoản miễn phí để đặt lịch tiêm và quản lý hồ sơ y tế cá nhân của bạn.
+    </p>
+  </div>
+
+  <div class="auth-right" style="overflow-y: auto; padding: 40px 52px;">
+    <div class="auth-form-wrap">
+      <h2 class="auth-form-title">Tạo tài khoản</h2>
+      <p class="auth-form-sub">Điền thông tin để đăng ký tài khoản người tiêm</p>
+
+      <form method="post" class="form-vc">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Họ</label>
+            <input type="text" name="last_name" class="form-control" placeholder="Nguyễn" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Tên</label>
+            <input type="text" name="first_name" class="form-control" placeholder="Văn A" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" placeholder="email@example.com" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Số điện thoại</label>
+            <input type="text" name="phone" class="form-control" placeholder="0901 234 567" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Tên đăng nhập</label>
+            <input type="text" name="username" class="form-control" placeholder="username" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Mật khẩu</label>
+            <input type="password" name="password1" class="form-control" placeholder="••••••••" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Xác nhận MK</label>
+            <input type="password" name="password2" class="form-control" placeholder="••••••••" required>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn-vc btn-accent-vc w-100 justify-content-center py-2" style="font-size:15px">
+              <i class="bi bi-person-plus-fill"></i> Đăng ký
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="text-center mt-3" style="color: var(--text-light); font-size: 13px;">
+        Đã có tài khoản?
+        <a href="{% url 'accounts:login' %}" style="color: var(--primary); font-weight:500; text-decoration:none">Đăng
+          nhập</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

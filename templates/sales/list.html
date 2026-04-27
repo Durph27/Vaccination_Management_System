@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Hóa đơn{% endblock %}
+{% block page_title %}Quản lý hóa đơn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Hóa đơn</h1>
+    <p>Danh sách tất cả hóa đơn trong hệ thống</p>
+  </div>
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-body" style="padding:0">
+    {% if sales %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>Mã HĐ</th>
+          <th>Người tiêm</th>
+          <th>Vaccine</th>
+          <th>Tổng tiền</th>
+          <th>Thanh toán</th>
+          <th>Trạng thái</th>
+          <th>Ngày tạo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales %}
+        <tr>
+          <td style="font-weight:600;color:var(--primary)">HD#{{ sale.pk }}</td>
+          <td>
+            <div style="font-weight:500">{{ sale.vaccine_administration.appointment.candidate.full_name }}</div>
+            <div style="color:var(--text-light);font-size:12px">{{ sale.vaccine_administration.appointment.candidate.phone|default:"—" }}</div>
+          </td>
+          <td>{{ sale.vaccine_administration.vaccine.name }}</td>
+          <td style="font-weight:700;color:var(--text-dark)">{{ sale.total_amount|floatformat:0 }} ₫</td>
+          <td>
+            {% if sale.payment_method == 'cash' %}
+            <span class="badge-status badge-pending"><i class="bi bi-cash"></i> Tiền mặt</span>
+            {% elif sale.payment_method == 'bank_transfer' %}
+            <span class="badge-status badge-confirmed"><i class="bi bi-bank"></i> Chuyển khoản</span>
+            {% else %}
+            <span class="badge-status badge-completed"><i class="bi bi-shield-check"></i> Bảo hiểm</span>
+            {% endif %}
+          </td>
+          <td><span class="badge-status badge-{{ sale.status }}">{{ sale.get_status_display }}</span></td>
+          <td style="color:var(--text-light);font-size:12px">{{ sale.created_at|date:"d/m/Y" }}</td>
+          <td>
+            <a href="{% url 'sales:detail' sale.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px;font-size:12px">Xem</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-receipt"></i>
+      <h5>Chưa có hóa đơn nào</h5>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

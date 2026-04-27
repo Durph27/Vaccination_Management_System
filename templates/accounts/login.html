@@ -1,0 +1,53 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block guest_content %}
+<div class="auth-wrapper">
+  <div class="auth-left">
+    <div class="auth-left-logo">
+      <div class="auth-logo-icon"><i class="bi bi-shield-plus-fill" style="color:#fff"></i></div>
+      <span class="auth-logo-name">TOC</span>
+    </div>
+    <h1 class="auth-headline">
+      Chăm sóc sức khỏe <strong>thông minh hơn</strong> mỗi ngày
+    </h1>
+    <p class="auth-subtext">
+      Đặt lịch tiêm chủng, theo dõi hồ sơ y tế và lịch sử tiêm vaccine của bạn — mọi lúc, mọi nơi.
+    </p>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-form-wrap">
+      <h2 class="auth-form-title">Đăng nhập</h2>
+      <p class="auth-form-sub">Nhập thông tin tài khoản của bạn để tiếp tục</p>
+
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} mb-3" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% endif %}
+
+      <form method="post" class="form-vc">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Tên đăng nhập</label>
+          <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" autofocus required>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-vc btn-primary-vc w-100 justify-content-center py-2" style="font-size:15px">
+          <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+        </button>
+      </form>
+
+      <div class="text-center mt-4" style="color: var(--text-light); font-size: 13px;">
+        Chưa có tài khoản?
+        <a href="{% url 'accounts:register' %}"
+          style="color: var(--primary); font-weight:500; text-decoration:none">Đăng ký ngay</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

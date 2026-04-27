@@ -1,0 +1,137 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Chi tiết lịch hẹn #{{ appointment.pk }}{% endblock %}
+{% block page_title %}Chi tiết lịch hẹn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% if request.user.is_candidate_user %}{% url 'appointments:my_list' %}{% else %}{% url 'appointments:all_list' %}{% endif %}" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+    <h1>Lịch hẹn #{{ appointment.pk }}</h1>
+    <p>{{ appointment.appointment_date|date:"d/m/Y" }} — {{ appointment.center.name|default:"Chưa rõ trung tâm" }}</p>
+  </div>
+  <span class="badge-status badge-{{ appointment.status }}" style="font-size:14px;padding:8px 16px">
+    {{ appointment.get_status_display }}
+  </span>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="vc-card mb-4">
+      <div class="vc-card-header"><span class="vc-card-title">Thông tin lịch hẹn</span></div>
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Người tiêm</span>
+          <span class="detail-value">{{ appointment.candidate.full_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Ngày hẹn</span>
+          <span class="detail-value">{{ appointment.appointment_date|date:"d/m/Y" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Giờ hẹn</span>
+          <span class="detail-value">{{ appointment.appointment_time|time:"H:i" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Trung tâm</span>
+          <span class="detail-value">{{ appointment.center.name|default:"—" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Địa chỉ</span>
+          <span class="detail-value">{{ appointment.center.address|default:"—" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Ghi chú</span>
+          <span class="detail-value">{{ appointment.notes|default:"—" }}</span>
+        </div>
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Tạo lúc</span>
+          <span class="detail-value">{{ appointment.created_at|date:"d/m/Y H:i" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vaccine administrations -->
+    {% if appointment.administrations.all %}
+    <div class="vc-card">
+      <div class="vc-card-header"><span class="vc-card-title">Vaccine đã tiêm</span></div>
+      <div class="vc-card-body" style="padding-top:12px">
+        {% for adm in appointment.administrations.all %}
+        <div class="adm-item">
+          <div class="adm-icon"><i class="bi bi-capsule-pill"></i></div>
+          <div class="adm-info">
+            <div style="font-weight:600">{{ adm.vaccine.name }}</div>
+            <div style="color:var(--text-light);font-size:12px">{{ adm.vaccine.manufacturer }} · Liều {{ adm.dose_number }}</div>
+            {% if adm.notes %}<div style="color:var(--text-mid);font-size:13px;margin-top:4px">{{ adm.notes }}</div>{% endif %}
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:700;color:var(--primary)">{{ adm.vaccine.price|floatformat:0 }} ₫</div>
+            <div style="color:var(--text-light);font-size:12px">{{ adm.immunization_hour|date:"d/m/Y H:i" }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-5">
+    <!-- Actions -->
+    <div class="vc-card mb-4">
+      <div class="vc-card-header"><span class="vc-card-title">Hành động</span></div>
+      <div class="vc-card-body">
+        {% if appointment.status == 'pending' and request.user.is_candidate_user %}
+        <form method="post" action="{% url 'appointments:cancel' appointment.pk %}" onsubmit="return confirm('Bạn có chắc muốn hủy?')">
+          {% csrf_token %}
+          <button type="submit" class="btn-vc btn-danger-vc w-100" style="justify-content:center">
+            <i class="bi bi-x-circle"></i> Hủy lịch hẹn
+          </button>
+        </form>
+        {% elif not request.user.is_candidate_user %}
+        <form method="post" action="{% url 'appointments:update_status' appointment.pk %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label" style="font-size:12px;font-weight:600;text-transform:uppercase;color:var(--text-mid)">Cập nhật trạng thái</label>
+            <select name="status" class="form-select">
+              <option value="pending" {% if appointment.status == 'pending' %}selected{% endif %}>Chờ xác nhận</option>
+              <option value="confirmed" {% if appointment.status == 'confirmed' %}selected{% endif %}>Đã xác nhận</option>
+              <option value="completed" {% if appointment.status == 'completed' %}selected{% endif %}>Hoàn thành</option>
+              <option value="cancelled" {% if appointment.status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-vc btn-primary-vc w-100" style="justify-content:center">
+            <i class="bi bi-check2-circle"></i> Lưu trạng thái
+          </button>
+        </form>
+        {% else %}
+        <p style="color:var(--text-light);text-align:center;padding:12px 0">
+          Không có hành động nào khả dụng
+        </p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Candidate quick info -->
+    <div class="vc-card">
+      <div class="profile-header" style="padding:20px 24px;border-radius:var(--radius) var(--radius) 0 0">
+        <div class="profile-avatar-large" style="width:48px;height:48px;font-size:18px">
+          {{ appointment.candidate.full_name|first|upper }}
+        </div>
+        <div>
+          <div class="profile-name" style="font-size:16px">{{ appointment.candidate.full_name }}</div>
+          <div class="profile-meta">{{ appointment.candidate.phone|default:"—" }}</div>
+        </div>
+      </div>
+      {% if not request.user.is_candidate_user %}
+      <div class="vc-card-body">
+        <a href="{% url 'candidates:detail' appointment.candidate.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
+          <i class="bi bi-person"></i> Xem hồ sơ
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'base/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Chỉnh sửa hồ sơ y tế{% endblock %}
+{% block page_title %}Hồ sơ y tế{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'candidates:detail' candidate.pk %}" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
+    <h1>Hồ sơ y tế</h1>
+    <p>{{ candidate.full_name }}</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="vc-card">
+      <div class="profile-header" style="border-radius:var(--radius) var(--radius) 0 0;padding:20px 24px">
+        <div class="profile-avatar-large" style="width:48px;height:48px;font-size:18px">{{ candidate.full_name|first|upper }}</div>
+        <div>
+          <div class="profile-name" style="font-size:18px">{{ candidate.full_name }}</div>
+          <div class="profile-meta">Chỉnh sửa hồ sơ y tế</div>
+        </div>
+      </div>
+      <div class="vc-card-body">
+        <form method="post" class="form-vc">
+          {% csrf_token %}
+          {{ form|crispy }}
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-vc btn-accent-vc">
+              <i class="bi bi-check-lg"></i> Lưu hồ sơ
+            </button>
+            <a href="{% url 'candidates:detail' candidate.pk %}" class="btn-vc btn-outline-vc">
+              Hủy
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

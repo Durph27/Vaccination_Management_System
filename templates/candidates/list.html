@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Danh sách người tiêm{% endblock %}
+{% block page_title %}Quản lý người tiêm{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div><h1>Người tiêm</h1><p>Quản lý hồ sơ người tiêm chủng</p></div>
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-header">
+    <form method="get" class="d-flex gap-2" style="flex:1; max-width:360px">
+      <input type="text" name="q" value="{{ query }}" class="form-control form-vc"
+             placeholder="Tìm theo tên..." style="border:1.5px solid var(--border); border-radius:8px; padding:8px 14px;">
+      <button type="submit" class="btn-vc btn-primary-vc">
+        <i class="bi bi-search"></i>
+      </button>
+    </form>
+  </div>
+  <div class="vc-card-body" style="padding-top:8px">
+    {% if candidates %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>Họ và tên</th>
+          <th>Ngày sinh</th>
+          <th>Số điện thoại</th>
+          <th>Địa chỉ</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in candidates %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:34px;height:34px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:13px;flex-shrink:0">
+                {{ c.full_name|first|upper }}
+              </div>
+              <span style="font-weight:500">{{ c.full_name }}</span>
+            </div>
+          </td>
+          <td>{{ c.dob|date:"d/m/Y"|default:"—" }}</td>
+          <td>{{ c.phone|default:"—" }}</td>
+          <td style="color:var(--text-mid)">{{ c.address|truncatechars:40|default:"—" }}</td>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="{% url 'candidates:detail' c.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px; font-size:12px">Xem</a>
+              <a href="{% url 'candidates:edit' c.pk %}" class="btn-vc btn-primary-vc" style="padding:5px 12px; font-size:12px">Sửa</a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-people"></i>
+      <h5>Không tìm thấy kết quả</h5>
+      <p>Thử từ khóa khác</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

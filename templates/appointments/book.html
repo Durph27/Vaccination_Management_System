@@ -1,0 +1,52 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Đặt lịch hẹn{% endblock %}
+{% block page_title %}Đặt lịch tiêm chủng{% endblock %}
+
+{% block content %}
+<div style="max-width: 640px;">
+  <div class="page-header">
+    <div>
+      <h1>Đặt lịch hẹn</h1>
+      <p>Chọn trung tâm và thời gian phù hợp với bạn</p>
+    </div>
+  </div>
+
+  <div class="vc-card">
+    <div class="vc-card-body">
+      <form method="post" class="form-vc">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label">Trung tâm tiêm chủng</label>
+          <select name="center" class="form-select" required>
+            <option value="">-- Chọn trung tâm --</option>
+            {% for center in centers %}
+            <option value="{{ center.pk }}">{{ center.name }} — {{ center.address }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <label class="form-label">Ngày hẹn</label>
+            <input type="date" name="appointment_date" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Giờ hẹn</label>
+            <input type="time" name="appointment_time" class="form-control" required>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Ghi chú (không bắt buộc)</label>
+          <textarea name="notes" class="form-control" rows="3" placeholder="Ví dụ: có dị ứng thuốc, đang dùng thuốc..."></textarea>
+        </div>
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn-vc btn-primary-vc">
+            <i class="bi bi-check2-circle"></i> Xác nhận đặt lịch
+          </button>
+          <a href="{% url 'candidates:dashboard' %}" class="btn-vc btn-outline-vc">Hủy</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

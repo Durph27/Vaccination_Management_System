@@ -1,0 +1,85 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Hồ sơ y tế{% endblock %}
+{% block page_title %}Hồ sơ y tế của tôi{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Hồ sơ y tế</h1>
+    <p>{{ candidate.full_name }}</p>
+  </div>
+</div>
+
+{% if record %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <span class="vc-card-title"><i class="bi bi-file-medical-fill" style="color:var(--danger);margin-right:8px"></i>Thông tin sức khỏe</span>
+      </div>
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Nhóm máu</span>
+          <span class="detail-value">
+            {% if record.blood_type %}
+            <span class="badge-status badge-confirmed" style="font-size:14px;padding:5px 14px">{{ record.blood_type }}</span>
+            {% else %}—{% endif %}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Chiều cao</span>
+          <span class="detail-value">{% if candidate.height %}{{ candidate.height }} cm{% else %}—{% endif %}</span>
+        </div>
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Cân nặng</span>
+          <span class="detail-value">{% if candidate.weight %}{{ candidate.weight }} kg{% else %}—{% endif %}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <span class="vc-card-title"><i class="bi bi-exclamation-triangle-fill" style="color:var(--warning);margin-right:8px"></i>Lưu ý y tế</span>
+      </div>
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Dị ứng</span>
+          <span class="detail-value" style="flex:1">
+            {% if record.allergies %}
+            <span style="background:#FFF8E0;color:#B07800;padding:4px 10px;border-radius:6px;font-size:13px">{{ record.allergies }}</span>
+            {% else %}Không{% endif %}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Bệnh mãn tính</span>
+          <span class="detail-value" style="flex:1">
+            {% if record.chronic_diseases %}
+            <span style="background:#FDEAEA;color:#C03030;padding:4px 10px;border-radius:6px;font-size:13px">{{ record.chronic_diseases }}</span>
+            {% else %}Không{% endif %}
+          </span>
+        </div>
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Ghi chú bác sĩ</span>
+          <span class="detail-value">{{ record.notes|default:"Không có ghi chú" }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12">
+    <div style="color:var(--text-light);font-size:12px;text-align:center">
+      Cập nhật lần cuối: {{ record.updated_at|date:"d/m/Y H:i" }}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="vc-card">
+  <div class="empty-state">
+    <i class="bi bi-file-medical"></i>
+    <h5>Chưa có hồ sơ y tế</h5>
+    <p>Liên hệ nhân viên tại trung tâm để tạo hồ sơ y tế cho bạn</p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

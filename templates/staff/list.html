@@ -1,0 +1,65 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Danh sách nhân viên{% endblock %}
+{% block page_title %}Nhân viên{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Nhân viên</h1>
+    <p>Danh sách tất cả nhân viên trong hệ thống</p>
+  </div>
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-body" style="padding:0">
+    {% if staff %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>Nhân viên</th>
+          <th>Vai trò</th>
+          <th>Trung tâm</th>
+          <th>Email</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for member in staff %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0;
+                {% if member.role == 'doctor' %}background:var(--primary){% elif member.role == 'nurse' %}background:var(--accent){% else %}background:var(--warning){% endif %}">
+                {{ member.name|first|upper }}
+              </div>
+              <span style="font-weight:500">{{ member.name }}</span>
+            </div>
+          </td>
+          <td>
+            {% if member.role == 'doctor' %}
+            <span class="badge-status badge-confirmed"><i class="bi bi-person-badge"></i> {{ member.get_role_display }}</span>
+            {% elif member.role == 'nurse' %}
+            <span class="badge-status badge-completed"><i class="bi bi-heart-pulse"></i> {{ member.get_role_display }}</span>
+            {% else %}
+            <span class="badge-status badge-pending"><i class="bi bi-person-lines-fill"></i> {{ member.get_role_display }}</span>
+            {% endif %}
+          </td>
+          <td>{{ member.center.name|default:"—" }}</td>
+          <td style="color:var(--text-mid)">{{ member.user.email|default:"—" }}</td>
+          <td>
+            <a href="{% url 'staff:detail' member.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px;font-size:12px">Xem</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-people"></i>
+      <h5>Chưa có nhân viên nào</h5>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

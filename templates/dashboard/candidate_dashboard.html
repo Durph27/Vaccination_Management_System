@@ -1,0 +1,129 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Xin chào, {{ candidate.full_name }}{% endblock %}
+
+{% block content %}
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon teal"><i class="bi bi-calendar2-check-fill"></i></div>
+    <div>
+      <div class="stat-value">{{ total_appointments }}</div>
+      <div class="stat-label">Lịch hẹn</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="bi bi-activity"></i></div>
+    <div>
+      <div class="stat-value">{{ appointments|length }}</div>
+      <div class="stat-label">Lần tiêm gần đây</div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon amber"><i class="bi bi-file-medical-fill"></i></div>
+    <div>
+      <div class="stat-value">{% if medical_record %}✓{% else %}—{% endif %}</div>
+      <div class="stat-label">Hồ sơ y tế</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Upcoming appointments -->
+  <div class="col-lg-8">
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <span class="vc-card-title">Lịch hẹn gần đây</span>
+        <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc">
+          <i class="bi bi-plus-lg"></i> Đặt lịch
+        </a>
+      </div>
+      <div class="vc-card-body" style="padding-top: 12px;">
+        {% if appointments %}
+        <table class="vc-table">
+          <thead>
+            <tr>
+              <th>Ngày hẹn</th>
+              <th>Trung tâm</th>
+              <th>Trạng thái</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for apt in appointments %}
+            <tr>
+              <td>
+                <div style="font-weight:500">{{ apt.appointment_date|date:"d/m/Y" }}</div>
+                <div style="color:var(--text-light); font-size:12px">{{ apt.appointment_time|time:"H:i" }}</div>
+              </td>
+              <td>{{ apt.center.name|default:"—" }}</td>
+              <td>
+                <span class="badge-status badge-{{ apt.status }}">
+                  {{ apt.get_status_display }}
+                </span>
+              </td>
+              <td>
+                <a href="{% url 'appointments:detail' apt.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px; font-size:12px">
+                  Xem
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div style="padding: 12px 0 0; text-align:right">
+          <a href="{% url 'appointments:my_list' %}" style="color:var(--primary); font-size:13px; text-decoration:none; font-weight:500">
+            Xem tất cả <i class="bi bi-arrow-right"></i>
+          </a>
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-calendar2-x"></i>
+          <h5>Chưa có lịch hẹn</h5>
+          <p>Đặt lịch tiêm chủng ngay hôm nay</p>
+          <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc mt-3">Đặt lịch ngay</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile summary -->
+  <div class="col-lg-4">
+    <div class="vc-card">
+      <div class="profile-header" style="border-radius: var(--radius) var(--radius) 0 0; padding: 24px">
+        <div class="profile-avatar-large" style="width:60px; height:60px; font-size:22px">
+          {{ candidate.full_name|first|upper }}
+        </div>
+        <div>
+          <div class="profile-name" style="font-size:18px">{{ candidate.full_name }}</div>
+          <div class="profile-meta">{{ candidate.phone|default:"Chưa cập nhật SĐT" }}</div>
+        </div>
+      </div>
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Ngày sinh</span>
+          <span class="detail-value">{{ candidate.dob|date:"d/m/Y"|default:"—" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Giới tính</span>
+          <span class="detail-value">{{ candidate.get_gender_display|default:"—" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Chiều cao</span>
+          <span class="detail-value">{% if candidate.height %}{{ candidate.height }} cm{% else %}—{% endif %}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Cân nặng</span>
+          <span class="detail-value">{% if candidate.weight %}{{ candidate.weight }} kg{% else %}—{% endif %}</span>
+        </div>
+        <div class="mt-3">
+          <a href="{% url 'candidates:my_profile' %}" class="btn-vc btn-outline-vc w-100 justify-content-center">
+            <i class="bi bi-eye"></i> Xem hồ sơ đầy đủ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

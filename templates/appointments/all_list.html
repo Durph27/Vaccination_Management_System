@@ -1,0 +1,86 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Quản lý lịch hẹn{% endblock %}
+{% block page_title %}Tất cả lịch hẹn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Tất cả lịch hẹn</h1>
+    <p>Quản lý và theo dõi lịch hẹn của mọi người tiêm</p>
+  </div>
+</div>
+
+<!-- Status filter tabs -->
+<div class="filter-tabs mb-4">
+  <a href="{% url 'appointments:all_list' %}" class="filter-tab {% if not status_filter %}active{% endif %}">Tất cả</a>
+  <a href="?status=pending" class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">
+    <i class="bi bi-clock"></i> Chờ xác nhận
+  </a>
+  <a href="?status=confirmed" class="filter-tab {% if status_filter == 'confirmed' %}active{% endif %}">
+    <i class="bi bi-check-circle"></i> Đã xác nhận
+  </a>
+  <a href="?status=completed" class="filter-tab {% if status_filter == 'completed' %}active{% endif %}">
+    <i class="bi bi-check2-all"></i> Hoàn thành
+  </a>
+  <a href="?status=cancelled" class="filter-tab {% if status_filter == 'cancelled' %}active{% endif %}">
+    <i class="bi bi-x-circle"></i> Đã hủy
+  </a>
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-body" style="padding:0">
+    {% if appointments %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Người tiêm</th>
+          <th>Ngày & Giờ</th>
+          <th>Trung tâm</th>
+          <th>Trạng thái</th>
+          <th>Ngày tạo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for apt in appointments %}
+        <tr>
+          <td style="color:var(--text-light);font-size:12px">{{ apt.pk }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;background:var(--accent-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent);font-size:13px;flex-shrink:0">
+                {{ apt.candidate.full_name|first|upper }}
+              </div>
+              <div>
+                <div style="font-weight:500">{{ apt.candidate.full_name }}</div>
+                <div style="color:var(--text-light);font-size:12px">{{ apt.candidate.phone|default:"—" }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight:500">{{ apt.appointment_date|date:"d/m/Y" }}</div>
+            <div style="color:var(--text-light);font-size:12px">{{ apt.appointment_time|time:"H:i" }}</div>
+          </td>
+          <td style="color:var(--text-mid)">{{ apt.center.name|default:"—" }}</td>
+          <td><span class="badge-status badge-{{ apt.status }}">{{ apt.get_status_display }}</span></td>
+          <td style="color:var(--text-light);font-size:12px">{{ apt.created_at|date:"d/m/Y" }}</td>
+          <td>
+            <a href="{% url 'appointments:detail' apt.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px;font-size:12px">
+              Xem
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-calendar2-x"></i>
+      <h5>Không có lịch hẹn nào</h5>
+      <p>{% if status_filter %}Không có lịch hẹn nào có trạng thái này{% else %}Chưa có lịch hẹn nào trong hệ thống{% endif %}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Hóa đơn của tôi{% endblock %}
+{% block page_title %}Hóa đơn của tôi{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Hóa đơn của tôi</h1>
+    <p>Lịch sử thanh toán tiêm chủng</p>
+  </div>
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-body" style="padding:0">
+    {% if sales %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>Mã HĐ</th>
+          <th>Vaccine</th>
+          <th>Tổng tiền</th>
+          <th>Phương thức</th>
+          <th>Trạng thái</th>
+          <th>Ngày thanh toán</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales %}
+        <tr>
+          <td style="font-weight:600;color:var(--primary)">HD#{{ sale.pk }}</td>
+          <td>
+            <div style="font-weight:500">{{ sale.vaccine_administration.vaccine.name }}</div>
+            <div style="color:var(--text-light);font-size:12px">Liều {{ sale.vaccine_administration.dose_number }}</div>
+          </td>
+          <td style="font-weight:700">{{ sale.total_amount|floatformat:0 }} ₫</td>
+          <td>{{ sale.get_payment_method_display }}</td>
+          <td><span class="badge-status badge-{{ sale.status }}">{{ sale.get_status_display }}</span></td>
+          <td style="color:var(--text-light);font-size:12px">
+            {% if sale.paid_at %}{{ sale.paid_at|date:"d/m/Y H:i" }}{% else %}—{% endif %}
+          </td>
+          <td>
+            <a href="{% url 'sales:detail' sale.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px;font-size:12px">Xem</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-receipt"></i>
+      <h5>Chưa có hóa đơn nào</h5>
+      <p>Hoàn thành lịch tiêm để nhận hóa đơn</p>
+      <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc mt-3">Đặt lịch ngay</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

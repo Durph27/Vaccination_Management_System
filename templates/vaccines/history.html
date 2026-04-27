@@ -1,0 +1,77 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Lịch sử tiêm chủng{% endblock %}
+{% block page_title %}Lịch sử tiêm chủng{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Lịch sử tiêm chủng</h1>
+    <p>{{ candidate.full_name }}</p>
+  </div>
+  {% if request.user.is_candidate_user %}
+  <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc">
+    <i class="bi bi-plus-lg"></i> Đặt lịch mới
+  </a>
+  {% endif %}
+</div>
+
+<div class="vc-card">
+  <div class="vc-card-body" style="padding:0">
+    {% if history %}
+    <table class="vc-table">
+      <thead>
+        <tr>
+          <th>Vaccine</th>
+          <th>Liều thứ</th>
+          <th>Ngày tiêm</th>
+          <th>Trung tâm</th>
+          <th>Bác sĩ</th>
+          <th>Ghi chú</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in history %}
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              {% if item.vaccine.image %}
+              <img src="{{ item.vaccine.image.url }}" style="width:36px;height:36px;object-fit:cover;border-radius:8px" alt="">
+              {% else %}
+              <div style="width:36px;height:36px;background:var(--accent-light);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:16px">
+                <i class="bi bi-capsule-pill"></i>
+              </div>
+              {% endif %}
+              <div>
+                <div style="font-weight:600">{{ item.vaccine.name }}</div>
+                <div style="color:var(--text-light);font-size:12px">{{ item.vaccine.manufacturer }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="badge-status badge-confirmed">Liều {{ item.dose_number }}/{{ item.vaccine.required_doses }}</span>
+          </td>
+          <td>
+            <div style="font-weight:500">{{ item.immunization_hour|date:"d/m/Y" }}</div>
+            <div style="color:var(--text-light);font-size:12px">{{ item.immunization_hour|time:"H:i" }}</div>
+          </td>
+          <td>{{ item.appointment.center.name|default:"—" }}</td>
+          <td>{{ item.doctor.staff.name|default:"—" }}</td>
+          <td style="color:var(--text-mid)">{{ item.notes|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-activity"></i>
+      <h5>Chưa có lịch sử tiêm chủng</h5>
+      <p>Đặt lịch tiêm để bắt đầu hành trình bảo vệ sức khỏe</p>
+      {% if request.user.is_candidate_user %}
+      <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc mt-3">Đặt lịch ngay</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
