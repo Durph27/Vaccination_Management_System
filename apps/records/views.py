@@ -8,6 +8,9 @@ from apps.candidates.models import Candidate
 
 @login_required
 def my_record(request):
+    if not request.user.is_candidate_user():
+        messages.error(request, 'Trang này chỉ dành cho người tiêm.')
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, user=request.user)
     try:
         record = MedicalRecord.objects.get(candidate=candidate)

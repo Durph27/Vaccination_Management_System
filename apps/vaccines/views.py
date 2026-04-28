@@ -34,6 +34,8 @@ def vaccine_detail(request, pk):
 @login_required
 def vaccine_history(request):
     """Candidate views their own vaccination history."""
+    if not request.user.is_candidate_user():
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, user=request.user)
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate

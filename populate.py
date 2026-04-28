@@ -436,7 +436,7 @@ def ensure_superuser():
             first_name='Admin',
             last_name='VNVC',
         )
-        print("  ✓ Superuser admin / admin123")
+        print("  ✓ Superuser: username=admin / password=admin")
     else:
         print("  ✓ Superuser đã tồn tại")
 

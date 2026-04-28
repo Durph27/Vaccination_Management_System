@@ -8,6 +8,9 @@ from apps.candidates.models import Candidate
 
 @login_required
 def book_appointment(request):
+    if not request.user.is_candidate_user():
+        messages.error(request, 'Chức năng này chỉ dành cho người tiêm.')
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, user=request.user)
     form = AppointmentForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -22,6 +25,8 @@ def book_appointment(request):
 
 @login_required
 def my_appointments(request):
+    if not request.user.is_candidate_user():
+        return redirect('appointments:all_list')
     candidate = get_object_or_404(Candidate, user=request.user)
     appointments = Appointment.objects.filter(candidate=candidate).order_by('-appointment_date')
     return render(request, 'appointments/my_list.html', {'appointments': appointments})
@@ -41,6 +46,9 @@ def appointment_detail(request, pk):
 
 @login_required
 def cancel_appointment(request, pk):
+    if not request.user.is_candidate_user():
+        messages.error(request, 'Hành động này chỉ dành cho người tiêm.')
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, user=request.user)
     appointment = get_object_or_404(Appointment, pk=pk, candidate=candidate)
     if appointment.status == 'pending':

@@ -1,24 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.utils.decorators import method_decorator
 from .models import Candidate
 from .forms import CandidateEditForm
 from apps.appointments.models import Appointment
 from apps.records.models import MedicalRecord
 from apps.accounts.models import User
 
-
-def staff_required(view_func):
-    """Decorator: only staff members can access."""
-    from functools import wraps
-    @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
-        if not request.user.is_authenticated or not request.user.is_staff_member():
-            messages.error(request, 'Bạn không có quyền truy cập trang này.')
-            return redirect('candidates:dashboard')
-        return view_func(request, *args, **kwargs)
-    return wrapper
 
 
 @login_required
@@ -28,6 +16,7 @@ def dashboard(request):
 
     if user.is_candidate_user():
         candidate = get_object_or_404(Candidate, user=user)
+        total_appointments = Appointment.objects.filter(candidate=candidate).count()
         appointments = Appointment.objects.filter(candidate=candidate).order_by('-appointment_date')[:5]
         try:
             medical_record = MedicalRecord.objects.get(candidate=candidate)
@@ -37,7 +26,7 @@ def dashboard(request):
             'candidate': candidate,
             'appointments': appointments,
             'medical_record': medical_record,
-            'total_appointments': appointments.count(),
+            'total_appointments': total_appointments,
         })
         return render(request, 'dashboard/candidate_dashboard.html', context)
     else:
@@ -55,13 +44,18 @@ def dashboard(request):
 
 @login_required
 def my_profile(request):
+    if not request.user.is_candidate_user():
+        messages.error(request, 'Trang này chỉ dành cho người tiêm.')
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, user=request.user)
     return render(request, 'candidates/profile.html', {'candidate': candidate})
 
 
 @login_required
-@staff_required
 def edit_candidate(request, pk):
+    if not request.user.is_staff_member():
+        messages.error(request, 'Bạn không có quyền truy cập trang này.')
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, pk=pk)
     form = CandidateEditForm(request.POST or None, instance=candidate)
     if request.method == 'POST' and form.is_valid():
@@ -72,8 +66,10 @@ def edit_candidate(request, pk):
 
 
 @login_required
-@staff_required
 def candidate_list(request):
+    if not request.user.is_staff_member():
+        messages.error(request, 'Bạn không có quyền truy cập trang này.')
+        return redirect('candidates:dashboard')
     candidates = Candidate.objects.all().order_by('full_name')
     query = request.GET.get('q', '')
     if query:
@@ -82,8 +78,10 @@ def candidate_list(request):
 
 
 @login_required
-@staff_required
 def candidate_detail(request, pk):
+    if not request.user.is_staff_member():
+        messages.error(request, 'Bạn không có quyền truy cập trang này.')
+        return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, pk=pk)
     appointments = Appointment.objects.filter(candidate=candidate).order_by('-appointment_date')
     try:
