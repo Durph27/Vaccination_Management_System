@@ -88,3 +88,22 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+# ── Python 3.14 / Django 4.2 compatibility fix ─────────────────────────────
+# In Python 3.14, copy(super()) no longer creates a copy of `self`; it tries
+# to copy the super-proxy object, raising AttributeError on template renders.
+# This patch replaces BaseContext.__copy__ with a version that works on all
+# supported Python versions (3.10 – 3.14+).
+import copy as _copy_module
+from django.template.context import BaseContext as _BaseContext
+
+
+def _patched_base_context_copy(self):
+    duplicate = self.__class__.__new__(self.__class__)
+    duplicate.__dict__.update(self.__dict__)
+    duplicate.dicts = self.dicts[:]
+    return duplicate
+
+
+_BaseContext.__copy__ = _patched_base_context_copy
+# ───────────────────────────────────────────────────────────────────────────
