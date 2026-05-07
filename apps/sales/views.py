@@ -7,28 +7,49 @@ from apps.candidates.models import Candidate
 
 @login_required
 def sale_list(request):
+    """Staff views all invoices/sales."""
     if not request.user.is_staff_member():
         messages.error(request, 'Bạn không có quyền truy cập trang này.')
         return redirect('candidates:dashboard')
-    sales = Sale.objects.select_related('vaccine_administration__appointment__candidate').order_by('-created_at')
+
+    sales = Sale.objects.select_related(
+        'vaccine_administration__appointment__candidate',
+        'vaccine_administration__vaccine',
+    ).order_by('-created_at')
     return render(request, 'sales/list.html', {'sales': sales})
 
 
 @login_required
 def my_sales(request):
+    """Candidates view their own invoices."""
     if not request.user.is_candidate_user():
-        return redirect('sales:list')
+        messages.error(request, 'Trang này chỉ dành cho người tiêm.')
+        return redirect('candidates:dashboard')
+
     candidate = get_object_or_404(Candidate, user=request.user)
     sales = Sale.objects.filter(
         vaccine_administration__appointment__candidate=candidate
+    ).select_related(
+        'vaccine_administration__appointment__candidate',
+        'vaccine_administration__vaccine',
     ).order_by('-created_at')
     return render(request, 'sales/my_list.html', {'sales': sales})
 
 
 @login_required
 def sale_detail(request, pk):
-    sale = get_object_or_404(Sale, pk=pk)
-    # Candidates can only view their own sales
+    """View details of a single sale/invoice."""
+    sale = get_object_or_404(
+        Sale.objects.select_related(
+            'vaccine_administration__appointment__candidate',
+            'vaccine_administration__appointment__center',
+            'vaccine_administration__vaccine',
+            'vaccine_administration__doctor__staff',
+            'vaccine_administration__nurse__staff',
+        ),
+        pk=pk,
+    )
+    # Candidates can only see their own invoices
     if request.user.is_candidate_user():
         candidate = get_object_or_404(Candidate, user=request.user)
         if sale.vaccine_administration.appointment.candidate != candidate:

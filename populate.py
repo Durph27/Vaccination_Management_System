@@ -1,5 +1,5 @@
 """
-Full database seeder for VaccineCare.
+Full database seeder for Treat or Chet.
 Covers: VaccinationCenter, User, Staff, Doctor, Nurse, Receptionist,
         Candidate, MedicalRecord, Vaccine, VaccineStock,
         Appointment, VaccineAdministration, Sale

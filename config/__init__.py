@@ -1,1 +1,1 @@
-# VaccineCare Django Project
+# Treat or Chet Django Project

@@ -1,4 +1,4 @@
-# VaccineCare — Hệ thống quản lý tiêm chủng
+# Treat or Chet — Hệ thống quản lý tiêm chủng
 
 ## Công nghệ sử dụng
 - **Backend**: Python 3.10+, Django 4.2
