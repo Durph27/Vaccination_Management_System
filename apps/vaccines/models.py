@@ -10,8 +10,6 @@ class Vaccine(models.Model):
     target_disease = models.CharField(max_length=200, blank=True, verbose_name='Bệnh phòng ngừa')
     price = models.DecimalField(max_digits=12, decimal_places=2, verbose_name='Giá (VNĐ)')
     required_doses = models.IntegerField(default=1, verbose_name='Số liều cần thiết')
-    quantity_available = models.IntegerField(default=0, verbose_name='Số lượng tồn kho')
-    expiry_date = models.DateField(verbose_name='Hạn sử dụng')
     image = models.ImageField(upload_to='vaccines/', blank=True, null=True, verbose_name='Hình ảnh')
     centers = models.ManyToManyField(VaccinationCenter, through='VaccineStock', related_name='vaccines')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -28,6 +26,7 @@ class VaccineStock(models.Model):
     vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
     center = models.ForeignKey(VaccinationCenter, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0, verbose_name='Số lượng tại trung tâm')
+    expiry_date = models.DateField(null=True, blank=True, verbose_name='Hạn sử dụng')
 
     class Meta:
         unique_together = ['vaccine', 'center']

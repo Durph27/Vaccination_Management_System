@@ -48,14 +48,11 @@
           </span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Hạn sử dụng</span>
-          <span class="detail-value">{{ vaccine.expiry_date|date:"d/m/Y" }}</span>
-        </div>
-        <div class="detail-row">
           <span class="detail-label">Tồn kho</span>
           <span class="detail-value">
-            {% if vaccine.quantity_available > 0 %}
-            <span class="badge-status badge-completed"><i class="bi bi-check-circle-fill"></i> {{ vaccine.quantity_available }} liều</span>
+            {% if total_stock > 0 %}
+            <span class="badge-status badge-completed"><i class="bi bi-check-circle-fill"></i> {{ total_stock }}
+              liều</span>
             {% else %}
             <span class="badge-status badge-cancelled"><i class="bi bi-x-circle-fill"></i> Hết hàng</span>
             {% endif %}
@@ -68,7 +65,8 @@
           </span>
         </div>
         <div class="mt-4">
-          <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc w-100" style="justify-content:center;padding:12px">
+          <a href="{% url 'appointments:book' %}" class="btn-vc btn-accent-vc w-100"
+            style="justify-content:center;padding:12px">
             <i class="bi bi-calendar-plus-fill"></i>&nbsp; Đặt lịch tiêm ngay
           </a>
         </div>
@@ -81,7 +79,8 @@
     <!-- Description -->
     <div class="vc-card mb-4">
       <div class="vc-card-header">
-        <span class="vc-card-title"><i class="bi bi-info-circle" style="color:var(--primary);margin-right:8px"></i>Mô tả vaccine</span>
+        <span class="vc-card-title"><i class="bi bi-info-circle" style="color:var(--primary);margin-right:8px"></i>Mô tả
+          vaccine</span>
       </div>
       <div class="vc-card-body">
         {% if vaccine.target_disease %}
@@ -99,7 +98,8 @@
     <!-- Available centers -->
     <div class="vc-card">
       <div class="vc-card-header">
-        <span class="vc-card-title"><i class="bi bi-geo-alt-fill" style="color:var(--danger);margin-right:8px"></i>Trung tâm tiêm chủng có sẵn</span>
+        <span class="vc-card-title"><i class="bi bi-geo-alt-fill" style="color:var(--danger);margin-right:8px"></i>Trung
+          tâm tiêm chủng có sẵn</span>
       </div>
       <div class="vc-card-body" style="padding-top:12px">
         {% if centers %}
@@ -111,6 +111,10 @@
               <div class="center-name">{{ stock.center.name }}</div>
               <div class="center-address">{{ stock.center.address }}</div>
               <div class="center-hotline"><i class="bi bi-telephone-fill"></i> {{ stock.center.hotline }}</div>
+              {% if stock.expiry_date %}
+              <div style="font-size:11px;color:var(--text-light);margin-top:4px"><i class="bi bi-calendar3"></i> HSD: {{
+                stock.expiry_date|date:"d/m/Y" }}</div>
+              {% endif %}
             </div>
             <div class="center-qty">
               <div class="qty-value">{{ stock.quantity }}</div>

@@ -41,17 +41,9 @@
           <span class="detail-label">Giới tính</span>
           <span class="detail-value">{{ candidate.get_gender_display|default:"—" }}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-row" style="border-bottom:none">
           <span class="detail-label">Địa chỉ</span>
           <span class="detail-value">{{ candidate.address|default:"—" }}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">Chiều cao</span>
-          <span class="detail-value">{% if candidate.height %}{{ candidate.height }} cm{% else %}—{% endif %}</span>
-        </div>
-        <div class="detail-row" style="border-bottom:none">
-          <span class="detail-label">Cân nặng</span>
-          <span class="detail-value">{% if candidate.weight %}{{ candidate.weight }} kg{% else %}—{% endif %}</span>
         </div>
       </div>
     </div>
@@ -68,6 +60,14 @@
             <span class="badge-status badge-confirmed">{{ medical_record.blood_type }}</span>
             {% else %}—{% endif %}
           </span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Chiều cao</span>
+          <span class="detail-value">{% if medical_record.height %}{{ medical_record.height }} cm{% else %}—{% endif %}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Cân nặng</span>
+          <span class="detail-value">{% if medical_record.weight %}{{ medical_record.weight }} kg{% else %}—{% endif %}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Dị ứng</span>

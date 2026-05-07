@@ -1,16 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Vaccine, VaccineAdministration
+from django.db.models import Sum
+from .models import Vaccine, VaccineAdministration, VaccineStock
 from apps.candidates.models import Candidate
 
 
 @login_required
 def vaccine_list(request):
-    vaccines = Vaccine.objects.all().order_by('name')
+    vaccines = Vaccine.objects.annotate(
+        total_stock=Sum('vaccinestock__quantity')
+    ).order_by('name')
     query = request.GET.get('q', '')
     category = request.GET.get('category', '')
     if query:
-        vaccines = vaccines.filter(name__icontains=query) | Vaccine.objects.filter(manufacturer__icontains=query)
+        vaccines = vaccines.filter(name__icontains=query) | Vaccine.objects.annotate(
+            total_stock=Sum('vaccinestock__quantity')
+        ).filter(manufacturer__icontains=query)
         vaccines = vaccines.distinct()
     if category:
         vaccines = vaccines.filter(target_disease__icontains=category)
@@ -25,9 +30,11 @@ def vaccine_list(request):
 def vaccine_detail(request, pk):
     vaccine = get_object_or_404(Vaccine, pk=pk)
     centers = vaccine.vaccinestock_set.select_related('center').filter(quantity__gt=0)
+    total_stock = centers.aggregate(total=Sum('quantity'))['total'] or 0
     return render(request, 'vaccines/detail.html', {
         'vaccine': vaccine,
         'centers': centers,
+        'total_stock': total_stock,
     })
 
 

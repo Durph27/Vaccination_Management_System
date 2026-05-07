@@ -253,15 +253,16 @@ def populate_vaccines(centers):
                 'required_doses': vd['required_doses'],
                 'target_disease': vd['target_disease'],
                 'description': vd['description'],
-                'quantity_available': random.randint(200, 1000),
-                'expiry_date': timezone.now().date() + timedelta(days=random.randint(180, 730)),
             }
         )
         # Stock in every center
         for center in centers:
             VaccineStock.objects.get_or_create(
                 vaccine=v, center=center,
-                defaults={'quantity': random.randint(30, 150)}
+                defaults={
+                    'quantity': random.randint(30, 150),
+                    'expiry_date': timezone.now().date() + timedelta(days=random.randint(180, 730)),
+                }
             )
         vaccines.append(v)
     print(f"  ✓ {len(vaccines)} loại vaccine, tồn kho tại {len(centers)} trung tâm")
@@ -311,14 +312,14 @@ def populate_candidates():
                 'gender': gender,
                 'phone': phone,
                 'address': address,
-                'height': height,
-                'weight': weight,
             }
         )
         MedicalRecord.objects.get_or_create(
             candidate=candidate,
             defaults={
                 'blood_type': blood,
+                'height': height,
+                'weight': weight,
                 'allergies': allergies,
                 'chronic_diseases': chronic,
                 'notes': 'Không có ghi chú đặc biệt' if chronic == 'Không' else f'Theo dõi định kỳ: {chronic}',

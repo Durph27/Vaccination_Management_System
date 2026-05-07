@@ -1,11 +1,12 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
 {% block guest_content %}
 <div class="auth-wrapper">
   <div class="auth-left">
     <div class="auth-left-logo">
-      <div class="auth-logo-icon"><i class="bi bi-shield-plus-fill" style="color:#fff"></i></div>
-      <span class="auth-logo-name">TOC</span>
+      <div class="auth-logo-icon"><img src="{% static 'images/logo.png' %}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:10px;"></div>
+      <span class="auth-logo-name">Treat or Chet</span>
     </div>
     <h1 class="auth-headline">
       Bắt đầu hành trình <strong>bảo vệ sức khỏe</strong> của bạn

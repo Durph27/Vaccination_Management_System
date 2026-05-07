@@ -3,13 +3,13 @@ from .models import Vaccine, VaccineAdministration, VaccineStock
 
 @admin.register(Vaccine)
 class VaccineAdmin(admin.ModelAdmin):
-    list_display = ['name', 'manufacturer', 'price', 'required_doses', 'quantity_available', 'expiry_date']
+    list_display = ['name', 'manufacturer', 'price', 'required_doses']
     search_fields = ['name', 'manufacturer', 'target_disease']
     list_filter = ['manufacturer', 'required_doses']
 
 @admin.register(VaccineStock)
 class VaccineStockAdmin(admin.ModelAdmin):
-    list_display = ['vaccine', 'center', 'quantity']
+    list_display = ['vaccine', 'center', 'quantity', 'expiry_date']
     list_filter = ['center']
     search_fields = ['vaccine__name', 'center__name']
 

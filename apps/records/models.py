@@ -8,6 +8,8 @@ class MedicalRecord(models.Model):
     blood_type = models.CharField(max_length=5, blank=True, verbose_name='Nhóm máu',
                                    choices=[('A+','A+'),('A-','A-'),('B+','B+'),('B-','B-'),
                                             ('AB+','AB+'),('AB-','AB-'),('O+','O+'),('O-','O-')])
+    height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Chiều cao (cm)')
+    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name='Cân nặng (kg)')
     allergies = models.TextField(blank=True, verbose_name='Dị ứng')
     chronic_diseases = models.TextField(blank=True, verbose_name='Bệnh mãn tính')
     notes = models.TextField(blank=True, verbose_name='Ghi chú bác sĩ')
