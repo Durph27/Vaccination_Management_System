@@ -59,13 +59,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccinems_db',
         'USER': 'root',
-        'PASSWORD': 'Hiep2712$',
+        'PASSWORD': '@Hlhuy11',
         'HOST': 'localhost',
         'PORT': '3306',
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        }
     }
 }
 

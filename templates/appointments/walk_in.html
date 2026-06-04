@@ -1,0 +1,548 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Tiếp nhận khách vãng lai{% endblock %}
+{% block page_title %}Tiếp nhận khách đến trực tiếp{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Step wizard ─────────────────────────────────────── */
+.wi-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 32px;
+}
+.wi-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.wi-step-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  background: var(--surface-2);
+  color: var(--text-light);
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+  transition: all .25s;
+}
+.wi-step-label { font-size: 13px; font-weight: 500; color: var(--text-light); line-height: 1.2; }
+.wi-step.active .wi-step-num  { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-light); }
+.wi-step.active .wi-step-label { color: var(--text); font-weight: 600; }
+.wi-step.done   .wi-step-num  { background: #16a34a; color: #fff; border-color: #16a34a; }
+.wi-step.done   .wi-step-label { color: #16a34a; }
+.wi-connector  { flex: 1; height: 2px; background: var(--border); margin: 0 8px; }
+.wi-connector.done { background: #16a34a; }
+
+/* ── Mode toggle ─────────────────────────────────────── */
+.mode-tabs {
+  display: flex;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+.mode-tab {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.mode-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+/* ── Search box ──────────────────────────────────────── */
+.search-wrap { position: relative; }
+.search-wrap .search-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--text-light); pointer-events: none; font-size: 16px;
+}
+.search-wrap input { padding-left: 42px !important; }
+.search-results {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  z-index: 200;
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+}
+.search-result-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background .15s;
+  border-bottom: 1px solid var(--border);
+}
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item:hover { background: var(--surface-2); }
+.sri-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent-light); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; flex-shrink: 0;
+}
+.sri-name  { font-weight: 600; font-size: 14px; }
+.sri-meta  { font-size: 12px; color: var(--text-light); }
+
+/* ── Selected candidate card ─────────────────────────── */
+.selected-candidate {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  background: var(--accent-light);
+  border: 1.5px solid var(--accent);
+  border-radius: 10px;
+  margin-top: 12px;
+  animation: fadeIn .2s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+.sc-info { flex: 1; }
+.sc-name  { font-weight: 700; font-size: 15px; color: var(--accent); }
+.sc-meta  { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+.sc-clear { background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 18px; padding: 4px; }
+.sc-clear:hover { color: #ef4444; }
+
+/* ── Section panels ─────────────────────────────────── */
+.wi-panel {
+  display: none;
+  animation: fadeIn .2s ease;
+}
+.wi-panel.show { display: block; }
+
+/* ── Next / Submit buttons ──────────────────────────── */
+.btn-next {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: opacity .2s;
+}
+.btn-next:hover { opacity: .88; }
+.btn-back-step {
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--text-mid);
+  padding: 11px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: border-color .2s;
+}
+.btn-back-step:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── Inline confirm summary ─────────────────────────── */
+.confirm-row {
+  display: flex; justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.confirm-row:last-child { border-bottom: none; }
+.confirm-row .cr-label { color: var(--text-light); }
+.confirm-row .cr-value { font-weight: 600; color: var(--text); text-align: right; max-width: 55%; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:780px;">
+
+  <!-- Page header -->
+  <div class="page-header" style="margin-bottom:28px;">
+    <div>
+      <h1>Tiếp nhận khách vãng lai</h1>
+      <p>Tạo lịch hẹn nhanh cho người đến khám trực tiếp chưa đặt trước</p>
+    </div>
+    <a href="{% url 'appointments:all_list' %}" class="btn-vc btn-outline-vc">
+      <i class="bi bi-arrow-left"></i> Danh sách lịch hẹn
+    </a>
+  </div>
+
+  <!-- Step wizard -->
+  <div class="wi-steps">
+    <div class="wi-step active" id="s-indicator-1">
+      <div class="wi-step-num">1</div>
+      <div class="wi-step-label">Xác định<br>người tiêm</div>
+    </div>
+    <div class="wi-connector" id="conn-1"></div>
+    <div class="wi-step" id="s-indicator-2">
+      <div class="wi-step-num">2</div>
+      <div class="wi-step-label">Thông tin<br>lịch hẹn</div>
+    </div>
+    <div class="wi-connector" id="conn-2"></div>
+    <div class="wi-step" id="s-indicator-3">
+      <div class="wi-step-num">3</div>
+      <div class="wi-step-label">Xác nhận<br>&amp; Lưu</div>
+    </div>
+  </div>
+
+  <form method="post" id="walkin-form">
+    {% csrf_token %}
+    <!-- Hidden fields populated by JS -->
+    <input type="hidden" name="mode" id="f-mode" value="existing">
+    <input type="hidden" name="candidate_id" id="f-candidate-id" value="">
+
+    <!-- ══════ STEP 1 — Identify patient ══════ -->
+    <div class="wi-panel show" id="step-1">
+      <div class="vc-card">
+        <div class="vc-card-header">
+          <span class="vc-card-title"><i class="bi bi-person-search me-2"></i>Bước 1 — Xác định người tiêm</span>
+        </div>
+        <div class="vc-card-body">
+
+          <!-- Mode toggle -->
+          <div class="mode-tabs">
+            <button type="button" class="mode-tab active" id="tab-existing" onclick="setMode('existing')">
+              <i class="bi bi-search"></i> Tìm trong hệ thống
+            </button>
+            <button type="button" class="mode-tab" id="tab-new" onclick="setMode('new')">
+              <i class="bi bi-person-plus"></i> Đăng ký mới
+            </button>
+          </div>
+
+          <!-- --- Panel: search existing --- -->
+          <div id="panel-existing" class="wi-panel show">
+            <label class="form-label">Tìm theo tên hoặc số điện thoại</label>
+            <div class="search-wrap">
+              <i class="bi bi-search search-icon"></i>
+              <input type="text" id="search-input" class="form-control" placeholder="Nhập tên hoặc SĐT để tìm kiếm..." autocomplete="off">
+              <div class="search-results" id="search-results"></div>
+            </div>
+            <div id="selected-card" style="display:none;" class="selected-candidate">
+              <div class="sri-avatar" id="sc-avatar"></div>
+              <div class="sc-info">
+                <div class="sc-name" id="sc-name"></div>
+                <div class="sc-meta" id="sc-meta"></div>
+              </div>
+              <button type="button" class="sc-clear" onclick="clearSelected()" title="Bỏ chọn">
+                <i class="bi bi-x-circle-fill"></i>
+              </button>
+            </div>
+            <p class="mt-3" style="font-size:13px;color:var(--text-light);">
+              <i class="bi bi-info-circle me-1"></i>
+              Không tìm thấy? Chuyển sang tab <strong>Đăng ký mới</strong>.
+            </p>
+          </div>
+
+          <!-- --- Panel: register new --- -->
+          <div id="panel-new" class="wi-panel">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Họ và tên <span style="color:#ef4444">*</span></label>
+                <input type="text" name="full_name" id="f-full-name" class="form-control" placeholder="Nguyễn Văn A">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Số điện thoại</label>
+                <input type="tel" name="phone" id="f-phone" class="form-control" placeholder="0901234567">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Ngày sinh</label>
+                <input type="date" name="dob" id="f-dob" class="form-control">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Giới tính</label>
+                <select name="gender" id="f-gender" class="form-select">
+                  <option value="">-- Chọn --</option>
+                  <option value="M">Nam</option>
+                  <option value="F">Nữ</option>
+                  <option value="O">Khác</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Địa chỉ</label>
+                <input type="text" name="address" id="f-address" class="form-control" placeholder="Số nhà, đường, phường/xã...">
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="vc-card-body" style="border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:flex-end;">
+          <button type="button" class="btn-next" onclick="goStep2()">
+            Tiếp theo <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ STEP 2 — Appointment details ══════ -->
+    <div class="wi-panel" id="step-2">
+      <div class="vc-card">
+        <div class="vc-card-header">
+          <span class="vc-card-title"><i class="bi bi-calendar2-plus me-2"></i>Bước 2 — Thông tin lịch hẹn</span>
+        </div>
+        <div class="vc-card-body">
+          <div class="mb-4">
+            <label class="form-label">Trung tâm tiêm chủng <span style="color:#ef4444">*</span></label>
+            <select name="center" id="f-center" class="form-select" required>
+              <option value="">-- Chọn trung tâm --</option>
+              {% for center in centers %}
+              <option value="{{ center.pk }}">{{ center.name }} — {{ center.address }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label">Ngày hẹn <span style="color:#ef4444">*</span></label>
+              <input type="date" name="appointment_date" id="f-date" class="form-control" value="{{ today }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Giờ hẹn <span style="color:#ef4444">*</span></label>
+              <input type="time" name="appointment_time" id="f-time" class="form-control" required>
+            </div>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Ghi chú (không bắt buộc)</label>
+            <textarea name="notes" id="f-notes" class="form-control" rows="3"
+              placeholder="Ví dụ: dị ứng thuốc, vaccine yêu cầu..."></textarea>
+          </div>
+          <p style="font-size:12px;color:var(--text-light);margin-top:8px;">
+            <i class="bi bi-check2-circle me-1" style="color:#16a34a"></i>
+            Lịch hẹn vãng lai sẽ được đặt ở trạng thái <strong>Đã xác nhận</strong> ngay lập tức.
+          </p>
+        </div>
+        <div class="vc-card-body" style="border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;">
+          <button type="button" class="btn-back-step" onclick="goStep(1)">
+            <i class="bi bi-arrow-left"></i> Quay lại
+          </button>
+          <button type="button" class="btn-next" onclick="goStep3()">
+            Xem lại <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════ STEP 3 — Confirm ══════ -->
+    <div class="wi-panel" id="step-3">
+      <div class="vc-card">
+        <div class="vc-card-header">
+          <span class="vc-card-title"><i class="bi bi-clipboard2-check me-2"></i>Bước 3 — Xác nhận thông tin</span>
+        </div>
+        <div class="vc-card-body">
+
+          <p style="font-size:13px;font-weight:600;text-transform:uppercase;color:var(--text-light);margin-bottom:16px;letter-spacing:.04em;">
+            Người tiêm
+          </p>
+          <div id="confirm-patient" class="mb-4">
+            <!-- filled by JS -->
+          </div>
+
+          <p style="font-size:13px;font-weight:600;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;letter-spacing:.04em;">
+            Chi tiết lịch hẹn
+          </p>
+          <div id="confirm-appt">
+            <div class="confirm-row">
+              <span class="cr-label">Trung tâm</span>
+              <span class="cr-value" id="cr-center">—</span>
+            </div>
+            <div class="confirm-row">
+              <span class="cr-label">Ngày &amp; Giờ</span>
+              <span class="cr-value" id="cr-datetime">—</span>
+            </div>
+            <div class="confirm-row">
+              <span class="cr-label">Ghi chú</span>
+              <span class="cr-value" id="cr-notes">—</span>
+            </div>
+            <div class="confirm-row">
+              <span class="cr-label">Trạng thái</span>
+              <span class="cr-value">
+                <span class="badge-status badge-confirmed">Đã xác nhận</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vc-card-body" style="border-top:1px solid var(--border);padding-top:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+          <button type="button" class="btn-back-step" onclick="goStep(2)">
+            <i class="bi bi-arrow-left"></i> Quay lại
+          </button>
+          <button type="submit" class="btn-next" style="padding:13px 36px;font-size:15px;">
+            <i class="bi bi-check2-circle"></i> Xác nhận & Tạo lịch hẹn
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const SEARCH_URL = "{% url 'appointments:walk_in' %}?action=search&q=";
+
+let currentMode = 'existing';
+let selectedCandidate = null;
+
+/* ── Mode toggle ─────────────────────────────────── */
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('f-mode').value = mode;
+  document.getElementById('panel-existing').classList.toggle('show', mode === 'existing');
+  document.getElementById('panel-new').classList.toggle('show', mode === 'new');
+  document.getElementById('tab-existing').classList.toggle('active', mode === 'existing');
+  document.getElementById('tab-new').classList.toggle('active', mode === 'new');
+}
+
+/* ── Live search ─────────────────────────────────── */
+let searchTimer = null;
+document.getElementById('search-input').addEventListener('input', function () {
+  clearTimeout(searchTimer);
+  const q = this.value.trim();
+  if (q.length < 2) { hideResults(); return; }
+  searchTimer = setTimeout(() => fetchCandidates(q), 280);
+});
+
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('#search-input') && !e.target.closest('#search-results')) {
+    hideResults();
+  }
+});
+
+async function fetchCandidates(q) {
+  try {
+    const res = await fetch(SEARCH_URL + encodeURIComponent(q));
+    const data = await res.json();
+    renderResults(data.candidates);
+  } catch (e) { hideResults(); }
+}
+
+function renderResults(list) {
+  const box = document.getElementById('search-results');
+  if (!list.length) {
+    box.innerHTML = '<div style="padding:16px;color:var(--text-light);font-size:14px;text-align:center"><i class="bi bi-search me-2"></i>Không tìm thấy kết quả</div>';
+    box.style.display = 'block';
+    return;
+  }
+  box.innerHTML = list.map(c => `
+    <div class="search-result-item" onclick="selectCandidate(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+      <div class="sri-avatar">${c.full_name.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="sri-name">${c.full_name}</div>
+        <div class="sri-meta">${c.phone || 'Chưa có SĐT'} · ${c.dob || 'N/A'} · ${c.gender}</div>
+      </div>
+      <i class="bi bi-chevron-right ms-auto" style="color:var(--text-light)"></i>
+    </div>`).join('');
+  box.style.display = 'block';
+}
+
+function hideResults() {
+  document.getElementById('search-results').style.display = 'none';
+}
+
+function selectCandidate(c) {
+  selectedCandidate = c;
+  document.getElementById('f-candidate-id').value = c.id;
+  document.getElementById('sc-avatar').textContent = c.full_name.charAt(0).toUpperCase();
+  document.getElementById('sc-name').textContent = c.full_name;
+  document.getElementById('sc-meta').textContent = `${c.phone || 'Chưa có SĐT'} · ${c.dob || 'N/A'} · ${c.gender}`;
+  document.getElementById('selected-card').style.display = 'flex';
+  document.getElementById('search-input').value = '';
+  hideResults();
+}
+
+function clearSelected() {
+  selectedCandidate = null;
+  document.getElementById('f-candidate-id').value = '';
+  document.getElementById('selected-card').style.display = 'none';
+}
+
+/* ── Step navigation ─────────────────────────────── */
+function goStep(n) {
+  [1, 2, 3].forEach(i => {
+    document.getElementById(`step-${i}`).classList.toggle('show', i === n);
+    const ind = document.getElementById(`s-indicator-${i}`);
+    ind.classList.remove('active', 'done');
+    if (i < n)  ind.classList.add('done');
+    if (i === n) ind.classList.add('active');
+    if (i < 3) {
+      document.getElementById(`conn-${i}`).classList.toggle('done', i < n);
+    }
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goStep2() {
+  if (currentMode === 'existing' && !selectedCandidate) {
+    alert('Vui lòng tìm và chọn người tiêm, hoặc chuyển sang tab Đăng ký mới.');
+    return;
+  }
+  if (currentMode === 'new') {
+    const fn = document.getElementById('f-full-name').value.trim();
+    if (!fn) { alert('Vui lòng nhập họ tên người tiêm.'); return; }
+  }
+  goStep(2);
+}
+
+function goStep3() {
+  const center = document.getElementById('f-center');
+  const date   = document.getElementById('f-date').value;
+  const time   = document.getElementById('f-time').value;
+  if (!center.value || !date || !time) {
+    alert('Vui lòng điền đầy đủ trung tâm, ngày và giờ hẹn.');
+    return;
+  }
+
+  // Fill confirm summary
+  const centerText = center.options[center.selectedIndex].text;
+  const [yr, mo, dy] = date.split('-');
+  const dateStr = `${dy}/${mo}/${yr}`;
+  const notes = document.getElementById('f-notes').value.trim();
+
+  document.getElementById('cr-center').textContent = centerText;
+  document.getElementById('cr-datetime').textContent = `${dateStr} lúc ${time}`;
+  document.getElementById('cr-notes').textContent = notes || '(không có)';
+
+  let patientHtml = '';
+  if (currentMode === 'existing' && selectedCandidate) {
+    patientHtml = `
+      <div class="selected-candidate" style="margin-top:0">
+        <div class="sri-avatar">${selectedCandidate.full_name.charAt(0).toUpperCase()}</div>
+        <div class="sc-info">
+          <div class="sc-name">${selectedCandidate.full_name}</div>
+          <div class="sc-meta">${selectedCandidate.phone || 'Chưa có SĐT'} · ${selectedCandidate.dob || 'N/A'} · ${selectedCandidate.gender}</div>
+        </div>
+        <span class="badge-status badge-confirmed" style="font-size:11px">Có sẵn</span>
+      </div>`;
+  } else {
+    const fn  = document.getElementById('f-full-name').value.trim();
+    const ph  = document.getElementById('f-phone').value.trim();
+    const dob = document.getElementById('f-dob').value;
+    const gv  = document.getElementById('f-gender');
+    const gen = gv.options[gv.selectedIndex]?.text || '';
+    patientHtml = `
+      <div class="selected-candidate" style="margin-top:0;border-color:#f59e0b;background:rgba(251,191,36,.08)">
+        <div class="sri-avatar" style="background:rgba(251,191,36,.2);color:#b45309">${fn.charAt(0).toUpperCase()}</div>
+        <div class="sc-info">
+          <div class="sc-name" style="color:#b45309">${fn}</div>
+          <div class="sc-meta">${ph || 'Chưa có SĐT'} · ${dob || 'N/A'} · ${gen}</div>
+        </div>
+        <span class="badge-status badge-pending" style="font-size:11px">Mới</span>
+      </div>`;
+  }
+  document.getElementById('confirm-patient').innerHTML = patientHtml;
+  goStep(3);
+}
+</script>
+{% endblock %}

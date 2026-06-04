@@ -78,6 +78,9 @@
             <a href="{% url 'appointments:all_list' %}" class="nav-item">
                 <i class="bi bi-calendar2-week-fill"></i><span>Tất cả lịch hẹn</span>
             </a>
+            <a href="{% url 'appointments:walk_in' %}" class="nav-item {% if 'walk-in' in request.path %}active{% endif %}">
+                <i class="bi bi-person-plus-fill"></i><span>Tiếp nhận vãng lai</span>
+            </a>
             <a href="{% url 'vaccines:list' %}" class="nav-item">
                 <i class="bi bi-capsule"></i><span>Vaccine</span>
             </a>
