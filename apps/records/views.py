@@ -26,9 +26,9 @@ def my_record(request):
 
 @login_required
 def edit_record(request, candidate_pk):
-    """Staff edits a candidate's medical record."""
-    if not request.user.is_staff_member():
-        messages.error(request, 'Bạn không có quyền truy cập trang này.')
+    """Doctor/Admin edits a candidate's medical record."""
+    if not request.user.is_doctor():
+        messages.error(request, 'Chỉ bác sĩ hoặc quản trị viên mới có thể chỉnh sửa hồ sơ y tế.')
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, pk=candidate_pk)

@@ -6,7 +6,7 @@ from .forms import CandidateEditForm
 from apps.appointments.models import Appointment
 from apps.records.models import MedicalRecord
 from apps.accounts.models import User
-
+from apps.accounts.forms import RegisterCandidateForm
 
 
 @login_required
@@ -53,8 +53,9 @@ def my_profile(request):
 
 @login_required
 def edit_candidate(request, pk):
-    if not request.user.is_staff_member():
-        messages.error(request, 'Bạn không có quyền truy cập trang này.')
+    """Receptionist/Admin edits a candidate's general profile."""
+    if not request.user.is_receptionist():
+        messages.error(request, 'Chỉ lễ tân hoặc quản trị viên mới có thể chỉnh sửa hồ sơ người tiêm.')
         return redirect('candidates:dashboard')
     candidate = get_object_or_404(Candidate, pk=pk)
     form = CandidateEditForm(request.POST or None, instance=candidate)
@@ -93,3 +94,25 @@ def candidate_detail(request, pk):
         'appointments': appointments,
         'medical_record': medical_record,
     })
+
+
+@login_required
+def receptionist_create_candidate(request):
+    """Receptionist/Admin creates a new candidate account."""
+    if not request.user.is_receptionist():
+        messages.error(request, 'Chỉ lễ tân hoặc quản trị viên mới có thể tạo tài khoản người tiêm.')
+        return redirect('candidates:dashboard')
+
+    form = RegisterCandidateForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save(commit=False)
+        user.role = User.ROLE_CANDIDATE
+        user.save()
+        candidate = Candidate.objects.create(
+            user=user,
+            full_name=user.get_full_name(),
+            phone=user.phone,
+        )
+        messages.success(request, f'Đã tạo tài khoản cho {candidate.full_name} thành công!')
+        return redirect('candidates:detail', pk=candidate.pk)
+    return render(request, 'candidates/create.html', {'form': form})

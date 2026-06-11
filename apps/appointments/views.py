@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 from .models import Appointment, VaccinationCenter
 from apps.candidates.models import Candidate
 
@@ -60,6 +61,9 @@ def appointment_detail(request, pk):
         if appointment.candidate != candidate:
             messages.error(request, 'Bạn không có quyền xem lịch hẹn này.')
             return redirect('appointments:my_list')
+    elif not request.user.is_staff_member():
+        messages.error(request, 'Bạn không có quyền truy cập trang này.')
+        return redirect('candidates:dashboard')
     return render(request, 'appointments/detail.html', {'appointment': appointment})
 
 
@@ -102,19 +106,82 @@ def all_appointments(request):
 
 @login_required
 def update_appointment_status(request, pk):
-    """Staff updates the status of an appointment."""
-    if not request.user.is_staff_member():
-        messages.error(request, 'Bạn không có quyền thực hiện hành động này.')
-        return redirect('candidates:dashboard')
+    """Receptionist/Admin updates the status of an appointment.
+    When set to 'paid', auto-create Sale records for all vaccine administrations.
+    """
+    if not request.user.is_receptionist():
+        messages.error(request, 'Chỉ lễ tân hoặc quản trị viên mới có thể cập nhật trạng thái.')
+        return redirect('appointments:detail', pk=pk)
 
     appointment = get_object_or_404(Appointment, pk=pk)
     if request.method == 'POST':
         new_status = request.POST.get('status', '')
         valid_statuses = [choice[0] for choice in Appointment.STATUS_CHOICES]
         if new_status in valid_statuses:
+            old_status = appointment.status
             appointment.status = new_status
             appointment.save()
+
+            # Auto-create Sale records when status changes to 'paid'
+            if new_status == 'paid' and old_status != 'paid':
+                _auto_create_sales(appointment)
+
             messages.success(request, 'Đã cập nhật trạng thái lịch hẹn.')
         else:
             messages.error(request, 'Trạng thái không hợp lệ.')
     return redirect('appointments:detail', pk=pk)
+
+
+def _auto_create_sales(appointment):
+    """Auto-create Sale records for each VaccineAdministration in the appointment."""
+    from apps.sales.models import Sale
+    from apps.vaccines.models import VaccineAdministration
+
+    administrations = appointment.administrations.all()
+    for adm in administrations:
+        # Only create if no sale exists yet
+        if not hasattr(adm, 'sale'):
+            Sale.objects.create(
+                vaccine_administration=adm,
+                total_amount=adm.vaccine.price,
+                payment_method='cash',
+                status='paid',
+                paid_at=timezone.now(),
+            )
+
+
+@login_required
+def receptionist_book_appointment(request, candidate_pk):
+    """Receptionist/Admin books an appointment for a candidate."""
+    if not request.user.is_receptionist():
+        messages.error(request, 'Chỉ lễ tân hoặc quản trị viên mới có thể đặt lịch cho người tiêm.')
+        return redirect('candidates:dashboard')
+
+    candidate = get_object_or_404(Candidate, pk=candidate_pk)
+    centers = VaccinationCenter.objects.all().order_by('name')
+
+    if request.method == 'POST':
+        center_id = request.POST.get('center')
+        appointment_date = request.POST.get('appointment_date')
+        appointment_time = request.POST.get('appointment_time')
+        notes = request.POST.get('notes', '')
+
+        if not center_id or not appointment_date or not appointment_time:
+            messages.error(request, 'Vui lòng điền đầy đủ thông tin.')
+        else:
+            center = get_object_or_404(VaccinationCenter, pk=center_id)
+            appointment = Appointment.objects.create(
+                candidate=candidate,
+                center=center,
+                appointment_date=appointment_date,
+                appointment_time=appointment_time,
+                notes=notes,
+                status='confirmed',  # Receptionist-created appointments are auto-confirmed
+            )
+            messages.success(request, f'Đã đặt lịch hẹn cho {candidate.full_name} thành công!')
+            return redirect('appointments:detail', pk=appointment.pk)
+
+    return render(request, 'appointments/receptionist_book.html', {
+        'candidate': candidate,
+        'centers': centers,
+    })

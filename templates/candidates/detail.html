@@ -12,13 +12,20 @@
     <h1>{{ candidate.full_name }}</h1>
     <p>Hồ sơ người tiêm chủng</p>
   </div>
-  <div style="display:flex;gap:10px">
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    {% if request.user.is_receptionist %}
     <a href="{% url 'candidates:edit' candidate.pk %}" class="btn-vc btn-outline-vc">
-      <i class="bi bi-pencil"></i> Chỉnh sửa
+      <i class="bi bi-pencil"></i> Chỉnh sửa hồ sơ
     </a>
+    <a href="{% url 'appointments:receptionist_book' candidate.pk %}" class="btn-vc btn-accent-vc">
+      <i class="bi bi-calendar2-plus"></i> Đặt lịch hẹn
+    </a>
+    {% endif %}
+    {% if request.user.is_doctor %}
     <a href="{% url 'records:edit' candidate.pk %}" class="btn-vc btn-primary-vc">
-      <i class="bi bi-file-medical"></i> Hồ sơ y tế
+      <i class="bi bi-file-medical"></i> Sửa hồ sơ y tế
     </a>
+    {% endif %}
   </div>
 </div>
 

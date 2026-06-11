@@ -1,0 +1,80 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Đặt lịch hẹn cho {{ candidate.full_name }}{% endblock %}
+{% block page_title %}Đặt lịch hẹn{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'candidates:detail' candidate.pk %}" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Quay lại hồ sơ
+    </a>
+    <h1>Đặt lịch hẹn cho người tiêm</h1>
+    <p>Tạo lịch hẹn tiêm chủng cho <strong>{{ candidate.full_name }}</strong></p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <!-- Candidate info summary -->
+    <div class="vc-card mb-4">
+      <div class="profile-header" style="padding:16px 24px;border-radius:var(--radius) var(--radius) 0 0">
+        <div class="profile-avatar-large" style="width:44px;height:44px;font-size:16px">
+          {{ candidate.full_name|first|upper }}
+        </div>
+        <div>
+          <div class="profile-name" style="font-size:15px">{{ candidate.full_name }}</div>
+          <div class="profile-meta">{{ candidate.phone|default:"Chưa có SĐT" }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <span class="vc-card-title"><i class="bi bi-calendar2-plus-fill me-2"></i>Thông tin lịch hẹn</span>
+      </div>
+      <div class="vc-card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Trung tâm tiêm chủng <span class="text-danger">*</span></label>
+              <select name="center" id="center" class="form-select" required>
+                <option value="">-- Chọn trung tâm --</option>
+                {% for center in centers %}
+                <option value="{{ center.pk }}">{{ center.name }} — {{ center.address }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Ngày hẹn <span class="text-danger">*</span></label>
+              <input type="date" name="appointment_date" id="appointment_date" class="form-control" required
+                     min="{{ today|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Giờ hẹn <span class="text-danger">*</span></label>
+              <input type="time" name="appointment_time" id="appointment_time" class="form-control" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Ghi chú</label>
+              <textarea name="notes" id="notes" class="form-control" rows="3"
+                        placeholder="Ghi chú thêm (nếu có)..."></textarea>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-vc btn-primary-vc" style="flex:1;justify-content:center">
+              <i class="bi bi-calendar-check-fill"></i> Đặt lịch hẹn
+            </button>
+            <a href="{% url 'candidates:detail' candidate.pk %}" class="btn-vc btn-outline-vc" style="flex:1;justify-content:center">
+              Hủy
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

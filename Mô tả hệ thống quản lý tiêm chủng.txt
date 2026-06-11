@@ -1,0 +1,51 @@
+Mô tả quy trình quản lý tiêm chủng:
+Người tiêm có thể tạo tài khoản và đăng ký lịch tiêm trước, nếu người tiêm chưa có tài khoản hoặc chưa có lịch hẹn lễ tân có thể tạo cho người tiêm
+Trước tiên người tiêm khi đến tiêm chủng sẽ gặp lễ tân với người đến tiêm lần đầu tiên lễ tân sẽ cập nhật hồ sơ gồm tên tuổi, địa chỉ,...
+Sau đó người tiêm đến gặp bác sĩ để khám, bác sĩ sẽ cập nhật hồ sơ y tế cho người tiêm và chỉ định vaccine sẽ được tiêm
+Tiếp theo người tiêm sẽ được y tá tiêm, sau khi tiêm xong, y tá sẽ cập nhật giờ tiêm và tình trạng sau tiêm
+Hóa đơn được xác định = giá của vaccine
+Mỗi nhân viên trong cơ sở tiêm chủng sẽ có một tài khoản khác nhau để thực hiện các chức năng khác nhau như đã mô tả
+
+Mô tả hệ thống quản lý tiêm chủng:
+- Các actors:
+1. Khách vãng lai (chưa có tài khoản)
+2. Người tiêm
+3. Nhân viên (Bác sĩ, y tá , lễ tân)
+4. Quản trị viên
+
+Use case:
+1. Khách chưa đăng nhập
+	Đăng ký tài khoản người tiêm.
+	Đăng nhập vào hệ thống.
+2. Người tiêm:
+    	Xem dashboard cá nhân
+   	Xem hồ sơ của mình (thông tin chung)
+ 	Đặt lịch hẹn tiêm chủng.
+ 	Xem danh sách và chi tiết lịch hẹn.
+ 	Hủy lịch hẹn đang chờ xác nhận
+	Xem lịch sử tiêm chủng của mình
+	Xem hồ sơ y tế
+	Xem hóa đơn của các lần tiêm đã thanh toán
+	Xem danh mục Vaccine
+3. Nhân viên: Actor tổng quát
+    Xem dashboard nhân viên
+    Xem danh sách người tiêm
+    Xem danh sách vaccine
+    Xem danh sách lịch hẹn
+    Lọc lịch hẹn theo trạng thái
+    Xem hồ sơ người tiêm
+    Xem hồ sơ y tế của người tiêm
+4. Bác sĩ (kế thừa từ nhân viên)
+    Sửa hồ sơ y tế của bệnh nhân
+    Thêm vaccine sẽ tiêm cho bệnh nhân
+5. Y tá (người thực hiện việc tiêm cho bệnh nhân) - kế thừa từ nhân viên
+     Thêm được giờ tiêm cho bệnh nhân (immunization_hour)
+     Thêm tình trạng sau tiêm cho bệnh nhân
+6. Lễ tân - kế thừa từ nhân viên
+    Chỉnh sửa hồ sơ người tiêm
+    Tạo được account cho người tiêm vãng lai chưa có tài khoản
+    Tạo được lịch hẹn cho người tiêm nếu người tiêm chưa đặt lịch hẹn
+    Cập nhật trạng thái là đã xác nhận, đã hủy hoặc đã thanh toán
+7. Quản trị viên: Làm được mọi thứ như bác sĩ, y tá, lễ tân
+
+    

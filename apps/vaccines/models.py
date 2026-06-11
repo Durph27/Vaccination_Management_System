@@ -37,11 +37,12 @@ class VaccineAdministration(models.Model):
     vaccine_administration_id = models.AutoField(primary_key=True)
     appointment = models.ForeignKey('appointments.Appointment', on_delete=models.CASCADE, related_name='administrations')
     vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
-    doctor = models.ForeignKey('staff.Doctor', on_delete=models.SET_NULL, null=True, related_name='examinations')
-    nurse = models.ForeignKey('staff.Nurse', on_delete=models.SET_NULL, null=True, related_name='injections')
-    immunization_hour = models.DateTimeField(verbose_name='Giờ tiêm')
+    doctor = models.ForeignKey('staff.Doctor', on_delete=models.SET_NULL, null=True, blank=True, related_name='examinations')
+    nurse = models.ForeignKey('staff.Nurse', on_delete=models.SET_NULL, null=True, blank=True, related_name='injections')
+    immunization_hour = models.DateTimeField(verbose_name='Giờ tiêm', null=True, blank=True)
     dose_number = models.IntegerField(default=1, verbose_name='Liều thứ')
-    notes = models.TextField(blank=True)
+    notes = models.TextField(blank=True, verbose_name='Ghi chú bác sĩ')
+    post_vaccination_status = models.TextField(blank=True, verbose_name='Tình trạng sau tiêm')
 
     class Meta:
         verbose_name = 'Lần tiêm'
@@ -49,3 +50,4 @@ class VaccineAdministration(models.Model):
 
     def __str__(self):
         return f"{self.appointment.candidate.full_name} - {self.vaccine.name} - {self.immunization_hour}"
+

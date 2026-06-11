@@ -21,14 +21,15 @@ def sale_list(request):
 
 @login_required
 def my_sales(request):
-    """Candidates view their own invoices."""
+    """Candidates view their own paid invoices."""
     if not request.user.is_candidate_user():
         messages.error(request, 'Trang này chỉ dành cho người tiêm.')
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, user=request.user)
     sales = Sale.objects.filter(
-        vaccine_administration__appointment__candidate=candidate
+        vaccine_administration__appointment__candidate=candidate,
+        status='paid',
     ).select_related(
         'vaccine_administration__appointment__candidate',
         'vaccine_administration__vaccine',

@@ -1,0 +1,131 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Chỉ định vaccine – Lịch hẹn #{{ appointment.pk }}{% endblock %}
+{% block page_title %}Chỉ định vaccine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'appointments:detail' appointment.pk %}" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Quay lại lịch hẹn
+    </a>
+    <h1>Chỉ định vaccine tiêm</h1>
+    <p>Bác sĩ chỉ định vaccine cho <strong>{{ appointment.candidate.full_name }}</strong></p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <!-- Appointment summary -->
+    <div class="vc-card mb-4">
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Người tiêm</span>
+          <span class="detail-value fw-semibold">{{ appointment.candidate.full_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Ngày hẹn</span>
+          <span class="detail-value">{{ appointment.appointment_date|date:"d/m/Y" }} lúc {{ appointment.appointment_time|time:"H:i" }}</span>
+        </div>
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Trung tâm</span>
+          <span class="detail-value">{{ appointment.center.name|default:"—" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Existing administrations -->
+    {% if appointment.administrations.all %}
+    <div class="vc-card mb-4">
+      <div class="vc-card-header">
+        <span class="vc-card-title"><i class="bi bi-capsule-pill me-2"></i>Vaccine đã chỉ định</span>
+      </div>
+      <div class="vc-card-body" style="padding-top:12px">
+        {% for adm in appointment.administrations.all %}
+        <div class="adm-item">
+          <div class="adm-icon"><i class="bi bi-capsule-pill"></i></div>
+          <div class="adm-info">
+            <div style="font-weight:600">{{ adm.vaccine.name }}</div>
+            <div style="color:var(--text-light);font-size:12px">{{ adm.vaccine.manufacturer }} · Liều {{ adm.dose_number }}</div>
+            {% if adm.notes %}<div style="color:var(--text-mid);font-size:13px;margin-top:4px">{{ adm.notes }}</div>{% endif %}
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:700;color:var(--primary)">{{ adm.vaccine.price|floatformat:0 }} ₫</div>
+            {% if adm.immunization_hour %}
+            <div style="color:var(--text-light);font-size:12px">Đã tiêm: {{ adm.immunization_hour|date:"d/m/Y H:i" }}</div>
+            {% else %}
+            <span class="badge-status badge-pending" style="font-size:11px">Chưa tiêm</span>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Add new vaccine form -->
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <span class="vc-card-title"><i class="bi bi-plus-circle-fill me-2"></i>Thêm vaccine chỉ định</span>
+      </div>
+      <div class="vc-card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Vaccine <span class="text-danger">*</span></label>
+              <select name="vaccine" id="vaccine-select" class="form-select" required>
+                <option value="">-- Chọn vaccine --</option>
+                {% for v in vaccines %}
+                <option value="{{ v.pk }}" data-price="{{ v.price }}">{{ v.name }} — {{ v.manufacturer }} ({{ v.price|floatformat:0 }} ₫)</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Liều thứ</label>
+              <input type="number" name="dose_number" id="dose-number" class="form-control" value="1" min="1" max="10">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Đơn giá</label>
+              <div class="form-control" id="price-display" style="background:var(--bg-main);color:var(--primary);font-weight:700">
+                —
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Ghi chú bác sĩ</label>
+              <textarea name="notes" class="form-control" rows="3"
+                        placeholder="Chỉ dẫn hoặc ghi chú thêm..."></textarea>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-vc btn-primary-vc" style="flex:1;justify-content:center">
+              <i class="bi bi-plus-circle-fill"></i> Thêm vaccine chỉ định
+            </button>
+            <a href="{% url 'appointments:detail' appointment.pk %}" class="btn-vc btn-outline-vc" style="flex:1;justify-content:center">
+              Xong
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('vaccine-select').addEventListener('change', function() {
+    const selected = this.options[this.selectedIndex];
+    const price = selected.dataset.price;
+    const display = document.getElementById('price-display');
+    if (price) {
+        display.textContent = parseInt(price).toLocaleString('vi-VN') + ' ₫';
+    } else {
+        display.textContent = '—';
+    }
+});
+</script>
+{% endblock %}

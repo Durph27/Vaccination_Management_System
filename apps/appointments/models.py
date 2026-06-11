@@ -21,8 +21,8 @@ class Appointment(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Chờ xác nhận'),
         ('confirmed', 'Đã xác nhận'),
-        ('completed', 'Hoàn thành'),
         ('cancelled', 'Đã hủy'),
+        ('paid', 'Đã thanh toán'),
     ]
 
     appointment_id = models.AutoField(primary_key=True)

@@ -81,10 +81,20 @@
             <a href="{% url 'vaccines:list' %}" class="nav-item">
                 <i class="bi bi-capsule"></i><span>Vaccine</span>
             </a>
+            {% if request.user.is_receptionist %}
             <a href="{% url 'sales:list' %}" class="nav-item">
                 <i class="bi bi-cash-stack"></i><span>Hóa đơn</span>
             </a>
+            {% endif %}
         </div>
+        {% if request.user.is_receptionist %}
+        <div class="nav-section">
+            <span class="nav-label">Lễ tân</span>
+            <a href="{% url 'candidates:create' %}" class="nav-item">
+                <i class="bi bi-person-plus-fill"></i><span>Tạo tài khoản người tiêm</span>
+            </a>
+        </div>
+        {% endif %}
         {% endif %}
     </nav>
 

@@ -1,0 +1,93 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Cập nhật thông tin tiêm{% endblock %}
+{% block page_title %}Cập nhật thông tin tiêm{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <a href="{% url 'appointments:detail' adm.appointment.pk %}" class="btn-vc btn-outline-vc mb-2" style="padding:5px 14px;font-size:12px">
+      <i class="bi bi-arrow-left"></i> Quay lại lịch hẹn
+    </a>
+    <h1>Cập nhật thông tin tiêm</h1>
+    <p>Y tá nhập giờ tiêm và tình trạng sau tiêm cho <strong>{{ adm.appointment.candidate.full_name }}</strong></p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <!-- Vaccine info summary -->
+    <div class="vc-card mb-4">
+      <div class="vc-card-body">
+        <div class="detail-row">
+          <span class="detail-label">Người tiêm</span>
+          <span class="detail-value fw-semibold">{{ adm.appointment.candidate.full_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Vaccine</span>
+          <span class="detail-value">{{ adm.vaccine.name }} ({{ adm.vaccine.manufacturer }})</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Liều thứ</span>
+          <span class="detail-value">{{ adm.dose_number }}</span>
+        </div>
+        {% if adm.notes %}
+        <div class="detail-row" style="border-bottom:none">
+          <span class="detail-label">Ghi chú bác sĩ</span>
+          <span class="detail-value">{{ adm.notes }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Update form -->
+    <div class="vc-card">
+      <div class="vc-card-header">
+        <span class="vc-card-title"><i class="bi bi-syringe me-2"></i>Thông tin tiêm thực tế</span>
+      </div>
+      <div class="vc-card-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Giờ tiêm thực tế <span class="text-danger">*</span></label>
+              <input type="datetime-local" name="immunization_hour" id="immunization_hour" class="form-control" required
+                     value="{% if adm.immunization_hour %}{{ adm.immunization_hour|date:'Y-m-d' }}T{{ adm.immunization_hour|time:'H:i' }}{% endif %}">
+              <div class="form-text">Nhập ngày và giờ tiêm thực tế</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Tình trạng sau tiêm</label>
+              <textarea name="post_vaccination_status" class="form-control" rows="4"
+                        placeholder="Ví dụ: Bình thường, không có phản ứng phụ. Hoặc: Đau nhẹ tại vị trí tiêm, sốt nhẹ 37.5°C...">{{ adm.post_vaccination_status }}</textarea>
+              <div class="form-text">Ghi nhận tình trạng sức khỏe của người tiêm sau khi tiêm vaccine</div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 mt-4">
+            <button type="submit" class="btn-vc btn-primary-vc" style="flex:1;justify-content:center">
+              <i class="bi bi-check2-circle"></i> Lưu thông tin tiêm
+            </button>
+            <a href="{% url 'appointments:detail' adm.appointment.pk %}" class="btn-vc btn-outline-vc" style="flex:1;justify-content:center">
+              Hủy
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Set default datetime to now if empty
+const input = document.getElementById('immunization_hour');
+if (!input.value) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    input.value = now.toISOString().slice(0, 16);
+}
+</script>
+{% endblock %}

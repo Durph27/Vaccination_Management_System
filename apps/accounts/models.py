@@ -26,5 +26,17 @@ class User(AbstractUser):
     def is_candidate_user(self):
         return self.role == self.ROLE_CANDIDATE
 
+    def is_receptionist(self):
+        return self.role in [self.ROLE_RECEPTIONIST, self.ROLE_ADMIN]
+
+    def is_doctor(self):
+        return self.role in [self.ROLE_DOCTOR, self.ROLE_ADMIN]
+
+    def is_nurse(self):
+        return self.role in [self.ROLE_NURSE, self.ROLE_ADMIN]
+
+    def is_admin(self):
+        return self.role == self.ROLE_ADMIN
+
     def __str__(self):
         return f"{self.get_full_name()} ({self.get_role_display()})"
