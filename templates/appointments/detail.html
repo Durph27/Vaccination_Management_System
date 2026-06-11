@@ -110,7 +110,7 @@
           </button>
         </form>
 
-        {# --- Doctor: prescribe vaccine --- #}
+        {# --- Doctor: prescribe vaccine + update to waiting_injection --- #}
         {% elif request.user.is_doctor %}
         <a href="{% url 'vaccines:add_administration' appointment.pk %}" class="btn-vc btn-primary-vc w-100" style="justify-content:center">
           <i class="bi bi-capsule-pill"></i> Chỉ định vaccine tiêm
@@ -118,6 +118,15 @@
         <a href="{% url 'records:edit' appointment.candidate.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
           <i class="bi bi-file-medical"></i> Sửa hồ sơ y tế
         </a>
+        {% if appointment.status != 'waiting_injection' and appointment.status != 'paid' and appointment.status != 'cancelled' %}
+        <form method="post" action="{% url 'appointments:update_status' appointment.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="status" value="waiting_injection">
+          <button type="submit" class="btn-vc w-100" style="justify-content:center;background:#7c3aed;color:#fff">
+            <i class="bi bi-syringe"></i> Chuyển sang Đang chờ tiêm
+          </button>
+        </form>
+        {% endif %}
 
         {# --- Nurse: update vaccine administration --- #}
         {% elif request.user.is_nurse %}
@@ -144,6 +153,7 @@
             <select name="status" class="form-select">
               <option value="pending" {% if appointment.status == 'pending' %}selected{% endif %}>Chờ xác nhận</option>
               <option value="confirmed" {% if appointment.status == 'confirmed' %}selected{% endif %}>Đã xác nhận</option>
+              <option value="waiting_exam" {% if appointment.status == 'waiting_exam' %}selected{% endif %}>Đang chờ khám</option>
               <option value="cancelled" {% if appointment.status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
               <option value="paid" {% if appointment.status == 'paid' %}selected{% endif %}>Đã thanh toán</option>
             </select>

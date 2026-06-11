@@ -20,6 +20,7 @@ def my_record(request):
         medical_record = None
     return render(request, 'records/my_record.html', {
         'candidate': candidate,
+        'record': medical_record,       # template uses 'record'
         'medical_record': medical_record,
     })
 

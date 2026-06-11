@@ -7,7 +7,7 @@
 <div class="page-header">
   <div>
     <h1>Tất cả lịch hẹn</h1>
-    <p>Quản lý và theo dõi lịch hẹn của mọi người tiêm</p>
+    <p>Quản lý và theo dõi lịch hẹn{% if staff_center %} tại <strong>{{ staff_center.name }}</strong>{% endif %}</p>
   </div>
   {% if request.user.is_receptionist %}
   <a href="{% url 'candidates:list' %}" class="btn-vc btn-primary-vc">
@@ -24,6 +24,12 @@
   </a>
   <a href="?status=confirmed" class="filter-tab {% if status_filter == 'confirmed' %}active{% endif %}">
     <i class="bi bi-check-circle"></i> Đã xác nhận
+  </a>
+  <a href="?status=waiting_exam" class="filter-tab {% if status_filter == 'waiting_exam' %}active{% endif %}">
+    <i class="bi bi-person-lines-fill"></i> Đang chờ khám
+  </a>
+  <a href="?status=waiting_injection" class="filter-tab {% if status_filter == 'waiting_injection' %}active{% endif %}">
+    <i class="bi bi-syringe"></i> Đang chờ tiêm
   </a>
   <a href="?status=paid" class="filter-tab {% if status_filter == 'paid' %}active{% endif %}">
     <i class="bi bi-cash-coin"></i> Đã thanh toán

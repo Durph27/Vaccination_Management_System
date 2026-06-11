@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 from apps.candidates.models import Candidate
 
 
@@ -21,9 +23,16 @@ class Appointment(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Chờ xác nhận'),
         ('confirmed', 'Đã xác nhận'),
+        ('waiting_exam', 'Đang chờ khám'),
+        ('waiting_injection', 'Đang chờ tiêm'),
         ('cancelled', 'Đã hủy'),
         ('paid', 'Đã thanh toán'),
     ]
+
+    # Statuses that receptionist can set
+    RECEPTIONIST_STATUSES = ['pending', 'confirmed', 'waiting_exam', 'cancelled', 'paid']
+    # Statuses that doctor can set
+    DOCTOR_STATUSES = ['waiting_injection']
 
     appointment_id = models.AutoField(primary_key=True)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='appointments')
@@ -39,5 +48,17 @@ class Appointment(models.Model):
         verbose_name_plural = 'Lịch hẹn'
         ordering = ['-appointment_date']
 
+    def clean(self):
+        """Validate that appointment datetime is in the future."""
+        if self.appointment_date and self.appointment_time:
+            import datetime
+            naive_dt = datetime.datetime.combine(self.appointment_date, self.appointment_time)
+            appt_dt = timezone.make_aware(naive_dt)
+            if appt_dt <= timezone.now():
+                raise ValidationError({
+                    'appointment_date': 'Lịch hẹn phải được đặt vào thời gian trong tương lai.'
+                })
+
     def __str__(self):
         return f"{self.candidate.full_name} - {self.appointment_date}"
+

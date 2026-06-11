@@ -38,6 +38,7 @@ Use case:
 4. Bác sĩ (kế thừa từ nhân viên)
     Sửa hồ sơ y tế của bệnh nhân
     Thêm vaccine sẽ tiêm cho bệnh nhân
+    Cập nhật trạng thái là chờ tiêm
 5. Y tá (người thực hiện việc tiêm cho bệnh nhân) - kế thừa từ nhân viên
      Thêm được giờ tiêm cho bệnh nhân (immunization_hour)
      Thêm tình trạng sau tiêm cho bệnh nhân
@@ -45,7 +46,7 @@ Use case:
     Chỉnh sửa hồ sơ người tiêm
     Tạo được account cho người tiêm vãng lai chưa có tài khoản
     Tạo được lịch hẹn cho người tiêm nếu người tiêm chưa đặt lịch hẹn
-    Cập nhật trạng thái là đã xác nhận, đã hủy hoặc đã thanh toán
+    Cập nhật trạng thái là đã xác nhận, chờ khám, đã hủy hoặc đã thanh toán
 7. Quản trị viên: Làm được mọi thứ như bác sĩ, y tá, lễ tân
 
     

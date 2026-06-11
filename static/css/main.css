@@ -368,10 +368,13 @@ body {
   font-size: 11.5px;
   font-weight: 500;
 }
-.badge-pending  { background: #FFF8E0; color: #B07800; }
-.badge-confirmed { background: #E0F0FA; color: #0A5C7F; }
-.badge-completed { background: #E0F8F0; color: #1A8060; }
-.badge-cancelled { background: #FDEAEA; color: #C03030; }
+.badge-pending          { background: #FFF8E0; color: #B07800; }
+.badge-confirmed        { background: #E0F0FA; color: #0A5C7F; }
+.badge-waiting_exam     { background: #EDE9FF; color: #5B21B6; }
+.badge-waiting_injection { background: #FFF0E6; color: #C2410C; }
+.badge-cancelled        { background: #FDEAEA; color: #C03030; }
+.badge-paid             { background: #E0F8F0; color: #1A8060; }
+.badge-completed        { background: #E0F8F0; color: #1A8060; }
 
 /* ======= BUTTONS ======= */
 .btn-vc {
