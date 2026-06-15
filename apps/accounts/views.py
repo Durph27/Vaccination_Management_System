@@ -48,8 +48,9 @@ def register_view(request):
             full_name=user.get_full_name(),
             phone=user.phone,
         )
+        # SQL: INSERT INTO candidates_candidate (user_id, full_name, phone, created_at, updated_at)
+        #      VALUES (%s, %s, %s, NOW(), NOW())
         login(request, user)
         messages.success(request, 'Đăng ký thành công!')
         return redirect('candidates:dashboard')
     return render(request, 'accounts/register.html', {'form': form})
-

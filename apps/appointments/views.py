@@ -39,7 +39,10 @@ def book_appointment(request):
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, user=request.user)
+    # SQL: SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+
     centers = VaccinationCenter.objects.all().order_by('name')
+    # SQL: SELECT * FROM appointments_vaccinationcenter ORDER BY name ASC
 
     if request.method == 'POST':
         center_id = request.POST.get('center')
@@ -55,6 +58,8 @@ def book_appointment(request):
                 messages.error(request, err)
             else:
                 center = get_object_or_404(VaccinationCenter, pk=center_id)
+                # SQL: SELECT * FROM appointments_vaccinationcenter WHERE center_id = %s LIMIT 1
+
                 Appointment.objects.create(
                     candidate=candidate,
                     center=center,
@@ -62,6 +67,10 @@ def book_appointment(request):
                     appointment_time=appointment_time,
                     notes=notes,
                 )
+                # SQL: INSERT INTO appointments_appointment
+                #      (candidate_id, center_id, appointment_date, appointment_time, notes, status, created_at)
+                #      VALUES (%s, %s, %s, %s, %s, 'pending', NOW())
+
                 messages.success(request, 'Đặt lịch hẹn thành công!')
                 return redirect('appointments:my_list')
 
@@ -76,7 +85,13 @@ def my_appointments(request):
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, user=request.user)
+    # SQL: SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+
     appointments = Appointment.objects.filter(candidate=candidate).order_by('-appointment_date')
+    # SQL: SELECT * FROM appointments_appointment
+    #      WHERE candidate_id = %s
+    #      ORDER BY appointment_date DESC
+
     return render(request, 'appointments/my_list.html', {'appointments': appointments})
 
 
@@ -84,9 +99,13 @@ def my_appointments(request):
 def appointment_detail(request, pk):
     """View detail of a single appointment."""
     appointment = get_object_or_404(Appointment, pk=pk)
+    # SQL: SELECT * FROM appointments_appointment WHERE appointment_id = %s LIMIT 1
+
     # Candidates can only view their own appointments
     if request.user.is_candidate_user():
         candidate = get_object_or_404(Candidate, user=request.user)
+        # SQL: SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+
         if appointment.candidate != candidate:
             messages.error(request, 'Bạn không có quyền xem lịch hẹn này.')
             return redirect('appointments:my_list')
@@ -104,12 +123,21 @@ def cancel_appointment(request, pk):
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, user=request.user)
+    # SQL: SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+
     appointment = get_object_or_404(Appointment, pk=pk, candidate=candidate)
+    # SQL: SELECT * FROM appointments_appointment
+    #      WHERE appointment_id = %s AND candidate_id = %s
+    #      LIMIT 1
 
     if request.method == 'POST':
         if appointment.status == 'pending':
             appointment.status = 'cancelled'
             appointment.save()
+            # SQL: UPDATE appointments_appointment
+            #      SET status = 'cancelled'
+            #      WHERE appointment_id = %s
+
             messages.success(request, 'Đã hủy lịch hẹn thành công.')
         else:
             messages.error(request, 'Chỉ có thể hủy lịch hẹn đang ở trạng thái chờ xác nhận.')
@@ -125,14 +153,21 @@ def all_appointments(request):
 
     status_filter = request.GET.get('status', '')
     appointments = Appointment.objects.select_related('candidate', 'center').order_by('-appointment_date')
+    # SQL: SELECT a.*, c.full_name, vc.name
+    #      FROM appointments_appointment a
+    #      JOIN candidates_candidate c ON a.candidate_id = c.candidate_id
+    #      JOIN appointments_vaccinationcenter vc ON a.center_id = vc.center_id
+    #      ORDER BY a.appointment_date DESC
 
     # Filter by staff's center (admin sees all)
     staff_center = _get_staff_center(request.user)
     if staff_center:
         appointments = appointments.filter(center=staff_center)
+        # SQL: ... WHERE a.center_id = %s
 
     if status_filter:
         appointments = appointments.filter(status=status_filter)
+        # SQL: ... AND a.status = %s
 
     return render(request, 'appointments/all_list.html', {
         'appointments': appointments,
@@ -148,6 +183,7 @@ def update_appointment_status(request, pk):
     When set to 'paid', auto-create Sale records.
     """
     appointment = get_object_or_404(Appointment, pk=pk)
+    # SQL: SELECT * FROM appointments_appointment WHERE appointment_id = %s LIMIT 1
 
     if request.method == 'POST':
         new_status = request.POST.get('status', '')
@@ -167,6 +203,9 @@ def update_appointment_status(request, pk):
             old_status = appointment.status
             appointment.status = new_status
             appointment.save()
+            # SQL: UPDATE appointments_appointment
+            #      SET status = %s
+            #      WHERE appointment_id = %s
 
             # Auto-create Sale records when status changes to 'paid'
             if new_status == 'paid' and old_status != 'paid':
@@ -182,6 +221,9 @@ def _auto_create_sales(appointment):
     from apps.sales.models import Sale
 
     administrations = appointment.administrations.all()
+    # SQL: SELECT * FROM vaccines_vaccineadministration
+    #      WHERE appointment_id = %s
+
     for adm in administrations:
         # Only create if no sale exists yet
         if not hasattr(adm, 'sale'):
@@ -192,6 +234,9 @@ def _auto_create_sales(appointment):
                 status='paid',
                 paid_at=timezone.now(),
             )
+            # SQL: INSERT INTO sales_sale
+            #      (vaccine_administration_id, total_amount, payment_method, status, paid_at, created_at)
+            #      VALUES (%s, %s, 'cash', 'paid', NOW(), NOW())
 
 
 @login_required
@@ -202,13 +247,16 @@ def receptionist_book_appointment(request, candidate_pk):
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, pk=candidate_pk)
+    # SQL: SELECT * FROM candidates_candidate WHERE candidate_id = %s LIMIT 1
 
     # Receptionist sees only their center; admin sees all
     staff_center = _get_staff_center(request.user)
     if staff_center:
         centers = VaccinationCenter.objects.filter(pk=staff_center.pk)
+        # SQL: SELECT * FROM appointments_vaccinationcenter WHERE center_id = %s
     else:
         centers = VaccinationCenter.objects.all().order_by('name')
+        # SQL: SELECT * FROM appointments_vaccinationcenter ORDER BY name ASC
 
     if request.method == 'POST':
         center_id = request.POST.get('center')
@@ -224,6 +272,8 @@ def receptionist_book_appointment(request, candidate_pk):
                 messages.error(request, err)
             else:
                 center = get_object_or_404(VaccinationCenter, pk=center_id)
+                # SQL: SELECT * FROM appointments_vaccinationcenter WHERE center_id = %s LIMIT 1
+
                 appointment = Appointment.objects.create(
                     candidate=candidate,
                     center=center,
@@ -232,6 +282,10 @@ def receptionist_book_appointment(request, candidate_pk):
                     notes=notes,
                     status='confirmed',  # Receptionist-created appointments are auto-confirmed
                 )
+                # SQL: INSERT INTO appointments_appointment
+                #      (candidate_id, center_id, appointment_date, appointment_time, notes, status, created_at)
+                #      VALUES (%s, %s, %s, %s, %s, 'confirmed', NOW())
+
                 messages.success(request, f'Đã đặt lịch hẹn cho {candidate.full_name} thành công!')
                 return redirect('appointments:detail', pk=appointment.pk)
 

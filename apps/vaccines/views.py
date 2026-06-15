@@ -14,15 +14,24 @@ def vaccine_list(request):
     vaccines = Vaccine.objects.annotate(
         total_stock=Sum('vaccinestock__quantity')
     ).order_by('name')
+    # SQL: SELECT v.*, SUM(vs.quantity) AS total_stock
+    #      FROM vaccines_vaccine v
+    #      LEFT JOIN vaccines_vaccinestock vs ON vs.vaccine_id = v.vaccine_id
+    #      GROUP BY v.vaccine_id
+    #      ORDER BY v.name ASC
+
     query = request.GET.get('q', '')
     category = request.GET.get('category', '')
     if query:
         vaccines = vaccines.filter(name__icontains=query) | Vaccine.objects.annotate(
             total_stock=Sum('vaccinestock__quantity')
         ).filter(manufacturer__icontains=query)
+        # SQL: ... WHERE v.name LIKE %query% OR v.manufacturer LIKE %query%
         vaccines = vaccines.distinct()
+        # SQL: ... (thêm DISTINCT để loại bỏ kết quả trùng lặp)
     if category:
         vaccines = vaccines.filter(target_disease__icontains=category)
+        # SQL: ... WHERE v.target_disease LIKE %category%
     return render(request, 'vaccines/list.html', {
         'vaccines': vaccines,
         'query': query,
@@ -33,8 +42,19 @@ def vaccine_list(request):
 @login_required
 def vaccine_detail(request, pk):
     vaccine = get_object_or_404(Vaccine, pk=pk)
+    # SQL: SELECT * FROM vaccines_vaccine WHERE vaccine_id = %s LIMIT 1
+
     centers = vaccine.vaccinestock_set.select_related('center').filter(quantity__gt=0)
+    # SQL: SELECT vs.*, vc.*
+    #      FROM vaccines_vaccinestock vs
+    #      JOIN appointments_vaccinationcenter vc ON vs.center_id = vc.center_id
+    #      WHERE vs.vaccine_id = %s AND vs.quantity > 0
+
     total_stock = centers.aggregate(total=Sum('quantity'))['total'] or 0
+    # SQL: SELECT SUM(quantity) AS total
+    #      FROM vaccines_vaccinestock
+    #      WHERE vaccine_id = %s AND quantity > 0
+
     return render(request, 'vaccines/detail.html', {
         'vaccine': vaccine,
         'centers': centers,
@@ -47,11 +67,23 @@ def vaccine_history(request):
     """Candidate views their own vaccination history (only administered ones)."""
     if not request.user.is_candidate_user():
         return redirect('candidates:dashboard')
+
     candidate = get_object_or_404(Candidate, user=request.user)
+    # SQL: SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate,
         immunization_hour__isnull=False,
     ).select_related('vaccine', 'appointment__center').order_by('-immunization_hour')
+    # SQL: SELECT va.*, v.name, v.manufacturer, a.appointment_date, vc.name AS center_name
+    #      FROM vaccines_vaccineadministration va
+    #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
+    #      JOIN appointments_appointment a ON va.appointment_id = a.appointment_id
+    #      JOIN appointments_vaccinationcenter vc ON a.center_id = vc.center_id
+    #      WHERE a.candidate_id = %s
+    #        AND va.immunization_hour IS NOT NULL
+    #      ORDER BY va.immunization_hour DESC
+
     return render(request, 'vaccines/history.html', {'history': history, 'candidate': candidate})
 
 
@@ -60,11 +92,23 @@ def candidate_vaccine_history(request, candidate_pk):
     """Staff views a candidate's vaccination history."""
     if not request.user.is_staff_member():
         return redirect('candidates:dashboard')
+
     candidate = get_object_or_404(Candidate, pk=candidate_pk)
+    # SQL: SELECT * FROM candidates_candidate WHERE candidate_id = %s LIMIT 1
+
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate,
         immunization_hour__isnull=False,
     ).select_related('vaccine', 'appointment__center').order_by('-immunization_hour')
+    # SQL: SELECT va.*, v.name, v.manufacturer, a.appointment_date, vc.name AS center_name
+    #      FROM vaccines_vaccineadministration va
+    #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
+    #      JOIN appointments_appointment a ON va.appointment_id = a.appointment_id
+    #      JOIN appointments_vaccinationcenter vc ON a.center_id = vc.center_id
+    #      WHERE a.candidate_id = %s
+    #        AND va.immunization_hour IS NOT NULL
+    #      ORDER BY va.immunization_hour DESC
+
     return render(request, 'vaccines/history.html', {'history': history, 'candidate': candidate})
 
 
@@ -76,13 +120,21 @@ def add_vaccine_administration(request, appointment_pk):
         return redirect('candidates:dashboard')
 
     appointment = get_object_or_404(Appointment, pk=appointment_pk)
+    # SQL: SELECT * FROM appointments_appointment WHERE appointment_id = %s LIMIT 1
+
     vaccines = Vaccine.objects.all().order_by('name')
+    # SQL: SELECT * FROM vaccines_vaccine ORDER BY name ASC
 
     # Get the doctor profile for the current user (if doctor role)
     doctor_profile = None
     if request.user.role == 'doctor':
         try:
             doctor_profile = Doctor.objects.get(staff__user=request.user)
+            # SQL: SELECT d.*
+            #      FROM staff_doctor d
+            #      JOIN staff_staff s ON d.staff_id = s.staff_id
+            #      WHERE s.user_id = %s
+            #      LIMIT 1
         except Doctor.DoesNotExist:
             pass
     elif request.user.role == 'admin':
@@ -98,6 +150,8 @@ def add_vaccine_administration(request, appointment_pk):
             messages.error(request, 'Vui lòng chọn vaccine.')
         else:
             vaccine = get_object_or_404(Vaccine, pk=vaccine_id)
+            # SQL: SELECT * FROM vaccines_vaccine WHERE vaccine_id = %s LIMIT 1
+
             VaccineAdministration.objects.create(
                 appointment=appointment,
                 vaccine=vaccine,
@@ -105,6 +159,11 @@ def add_vaccine_administration(request, appointment_pk):
                 dose_number=dose_number,
                 notes=notes,
             )
+            # SQL: INSERT INTO vaccines_vaccineadministration
+            #      (appointment_id, vaccine_id, doctor_id, nurse_id, dose_number, notes,
+            #       immunization_hour, post_vaccination_status)
+            #      VALUES (%s, %s, %s, NULL, %s, %s, NULL, '')
+
             messages.success(request, f'Đã chỉ định vaccine {vaccine.name} cho {appointment.candidate.full_name}.')
             return redirect('appointments:detail', pk=appointment_pk)
 
@@ -122,12 +181,18 @@ def nurse_update_administration(request, adm_pk):
         return redirect('candidates:dashboard')
 
     adm = get_object_or_404(VaccineAdministration, pk=adm_pk)
+    # SQL: SELECT * FROM vaccines_vaccineadministration WHERE vaccine_administration_id = %s LIMIT 1
 
     # Get the nurse profile for the current user
     nurse_profile = None
     if request.user.role == 'nurse':
         try:
             nurse_profile = Nurse.objects.get(staff__user=request.user)
+            # SQL: SELECT n.*
+            #      FROM staff_nurse n
+            #      JOIN staff_staff s ON n.staff_id = s.staff_id
+            #      WHERE s.user_id = %s
+            #      LIMIT 1
         except Nurse.DoesNotExist:
             pass
 
@@ -143,6 +208,12 @@ def nurse_update_administration(request, adm_pk):
             if nurse_profile:
                 adm.nurse = nurse_profile
             adm.save()
+            # SQL: UPDATE vaccines_vaccineadministration
+            #      SET immunization_hour = %s,
+            #          post_vaccination_status = %s,
+            #          nurse_id = %s
+            #      WHERE vaccine_administration_id = %s
+
             messages.success(request, 'Đã cập nhật thông tin tiêm thành công.')
             return redirect('appointments:detail', pk=adm.appointment.pk)
 

@@ -14,8 +14,11 @@ def my_record(request):
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, user=request.user)
+    # SQL: SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+
     try:
         medical_record = MedicalRecord.objects.get(candidate=candidate)
+        # SQL: SELECT * FROM records_medicalrecord WHERE candidate_id = %s LIMIT 1
     except MedicalRecord.DoesNotExist:
         medical_record = None
     return render(request, 'records/my_record.html', {
@@ -33,10 +36,24 @@ def edit_record(request, candidate_pk):
         return redirect('candidates:dashboard')
 
     candidate = get_object_or_404(Candidate, pk=candidate_pk)
+    # SQL: SELECT * FROM candidates_candidate WHERE candidate_id = %s LIMIT 1
+
     record, created = MedicalRecord.objects.get_or_create(candidate=candidate)
+    # SQL (get): SELECT * FROM records_medicalrecord WHERE candidate_id = %s LIMIT 1
+    # SQL (create nếu chưa tồn tại):
+    #      INSERT INTO records_medicalrecord
+    #      (candidate_id, blood_type, height, weight, allergies, chronic_diseases, notes, created_at, updated_at)
+    #      VALUES (%s, '', NULL, NULL, '', '', '', NOW(), NOW())
+
     form = MedicalRecordForm(request.POST or None, instance=record)
     if request.method == 'POST' and form.is_valid():
         form.save()
+        # SQL: UPDATE records_medicalrecord
+        #      SET blood_type = %s, height = %s, weight = %s,
+        #          allergies = %s, chronic_diseases = %s, notes = %s,
+        #          updated_at = NOW()
+        #      WHERE record_id = %s
+
         messages.success(request, f'Đã cập nhật hồ sơ y tế cho {candidate.full_name}.')
         return redirect('candidates:detail', pk=candidate_pk)
     return render(request, 'records/edit.html', {

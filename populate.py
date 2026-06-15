@@ -39,9 +39,15 @@ def make_user(username, first, last, email, role, password='123456'):
             'role': role,
         }
     )
+    # SQL (get): SELECT * FROM accounts_user WHERE username = %s LIMIT 1
+    # SQL (create nếu chưa tồn tại):
+    #      INSERT INTO accounts_user (username, first_name, last_name, email, role, is_active, date_joined)
+    #      VALUES (%s, %s, %s, %s, %s, 1, NOW())
+
     if created:
         user.set_password(password)
         user.save()
+        # SQL: UPDATE accounts_user SET password = %s WHERE id = %s
     return user, created
 
 
@@ -64,6 +70,10 @@ def populate_centers():
             name=name,
             defaults={'address': address, 'hotline': hotline}
         )
+        # SQL (get): SELECT * FROM appointments_vaccinationcenter WHERE name = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO appointments_vaccinationcenter (name, address, hotline, created_at)
+        #      VALUES (%s, %s, %s, NOW())
         centers.append(c)
     print(f"  ✓ {len(centers)} trung tâm tiêm chủng")
     return centers
@@ -111,10 +121,19 @@ def populate_staff(centers):
             user=user,
             defaults={'center': center, 'role': 'doctor', 'name': name}
         )
+        # SQL (get): SELECT * FROM staff_staff WHERE user_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO staff_staff (user_id, center_id, role, name)
+        #      VALUES (%s, %s, 'doctor', %s)
+
         doc, _ = Doctor.objects.get_or_create(
             staff=staff,
             defaults={'specialization': spec, 'license_number': lic}
         )
+        # SQL (get): SELECT * FROM staff_doctor WHERE staff_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO staff_doctor (staff_id, specialization, license_number)
+        #      VALUES (%s, %s, %s)
         doctors.append(doc)
 
     for i, (name, cert) in enumerate(NURSES):
@@ -130,10 +149,18 @@ def populate_staff(centers):
             user=user,
             defaults={'center': center, 'role': 'nurse', 'name': name}
         )
+        # SQL (get): SELECT * FROM staff_staff WHERE user_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO staff_staff (user_id, center_id, role, name)
+        #      VALUES (%s, %s, 'nurse', %s)
+
         nurse, _ = Nurse.objects.get_or_create(
             staff=staff,
             defaults={'certification': cert}
         )
+        # SQL (get): SELECT * FROM staff_nurse WHERE staff_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO staff_nurse (staff_id, certification) VALUES (%s, %s)
         nurses.append(nurse)
 
     for i, name in enumerate(RECEPTIONISTS):
@@ -149,7 +176,15 @@ def populate_staff(centers):
             user=user,
             defaults={'center': center, 'role': 'receptionist', 'name': name}
         )
+        # SQL (get): SELECT * FROM staff_staff WHERE user_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO staff_staff (user_id, center_id, role, name)
+        #      VALUES (%s, %s, 'receptionist', %s)
+
         Receptionist.objects.get_or_create(staff=staff)
+        # SQL (get): SELECT * FROM staff_receptionist WHERE staff_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO staff_receptionist (staff_id) VALUES (%s)
 
     print(f"  ✓ {len(DOCTORS)} bác sĩ, {len(NURSES)} y tá, {len(RECEPTIONISTS)} lễ tân")
     return doctors, nurses
@@ -255,6 +290,12 @@ def populate_vaccines(centers):
                 'description': vd['description'],
             }
         )
+        # SQL (get): SELECT * FROM vaccines_vaccine WHERE name = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO vaccines_vaccine
+        #      (name, manufacturer, price, required_doses, target_disease, description, created_at)
+        #      VALUES (%s, %s, %s, %s, %s, %s, NOW())
+
         # Stock in every center
         for center in centers:
             VaccineStock.objects.get_or_create(
@@ -264,6 +305,12 @@ def populate_vaccines(centers):
                     'expiry_date': timezone.now().date() + timedelta(days=random.randint(180, 730)),
                 }
             )
+            # SQL (get): SELECT * FROM vaccines_vaccinestock
+            #            WHERE vaccine_id = %s AND center_id = %s LIMIT 1
+            # SQL (create nếu chưa tồn tại):
+            #      INSERT INTO vaccines_vaccinestock (vaccine_id, center_id, quantity, expiry_date)
+            #      VALUES (%s, %s, %s, %s)
+
         vaccines.append(v)
     print(f"  ✓ {len(vaccines)} loại vaccine, tồn kho tại {len(centers)} trung tâm")
     return vaccines
@@ -314,6 +361,12 @@ def populate_candidates():
                 'address': address,
             }
         )
+        # SQL (get): SELECT * FROM candidates_candidate WHERE user_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO candidates_candidate
+        #      (user_id, full_name, dob, gender, phone, address, created_at, updated_at)
+        #      VALUES (%s, %s, %s, %s, %s, %s, NOW(), NOW())
+
         MedicalRecord.objects.get_or_create(
             candidate=candidate,
             defaults={
@@ -325,6 +378,12 @@ def populate_candidates():
                 'notes': 'Không có ghi chú đặc biệt' if chronic == 'Không' else f'Theo dõi định kỳ: {chronic}',
             }
         )
+        # SQL (get): SELECT * FROM records_medicalrecord WHERE candidate_id = %s LIMIT 1
+        # SQL (create nếu chưa tồn tại):
+        #      INSERT INTO records_medicalrecord
+        #      (candidate_id, blood_type, height, weight, allergies, chronic_diseases, notes, created_at, updated_at)
+        #      VALUES (%s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+
         candidates.append(candidate)
 
     print(f"  ✓ {len(candidates)} người tiêm & hồ sơ y tế")
@@ -369,6 +428,9 @@ def populate_appointments(candidates, centers, doctors, nurses, vaccines):
 
             # Avoid duplicate same-day same-center appointments
             if Appointment.objects.filter(candidate=candidate, appointment_date=appt_date, center=center).exists():
+                # SQL: SELECT 1 FROM appointments_appointment
+                #      WHERE candidate_id = %s AND appointment_date = %s AND center_id = %s
+                #      LIMIT 1
                 continue
 
             appointment = Appointment.objects.create(
@@ -379,6 +441,9 @@ def populate_appointments(candidates, centers, doctors, nurses, vaccines):
                 status=status,
                 notes='Khách hàng không có tiền sử dị ứng với vaccine.' if j == 0 else '',
             )
+            # SQL: INSERT INTO appointments_appointment
+            #      (candidate_id, center_id, appointment_date, appointment_time, status, notes, created_at)
+            #      VALUES (%s, %s, %s, %s, %s, %s, NOW())
             created_appts += 1
 
             # Only create administration+sale for completed appointments
@@ -410,6 +475,10 @@ def populate_appointments(candidates, centers, doctors, nurses, vaccines):
                     dose_number=1,
                     notes='Tiêm bình thường, không có phản ứng bất thường.',
                 )
+                # SQL: INSERT INTO vaccines_vaccineadministration
+                #      (appointment_id, vaccine_id, doctor_id, nurse_id,
+                #       immunization_hour, dose_number, notes, post_vaccination_status)
+                #      VALUES (%s, %s, %s, %s, %s, 1, %s, '')
                 created_adms += 1
 
                 Sale.objects.create(
@@ -419,6 +488,9 @@ def populate_appointments(candidates, centers, doctors, nurses, vaccines):
                     status='paid',
                     paid_at=imm_hour + timedelta(minutes=30),
                 )
+                # SQL: INSERT INTO sales_sale
+                #      (vaccine_administration_id, total_amount, payment_method, status, paid_at, created_at)
+                #      VALUES (%s, %s, %s, 'paid', %s, NOW())
                 created_sales += 1
 
     print(f"  ✓ {created_appts} lịch hẹn, {created_adms} lần tiêm, {created_sales} hóa đơn")
@@ -429,6 +501,7 @@ def populate_appointments(candidates, centers, doctors, nurses, vaccines):
 # ──────────────────────────────────────────────
 def ensure_superuser():
     if not User.objects.filter(username='admin').exists():
+        # SQL: SELECT 1 FROM accounts_user WHERE username = 'admin' LIMIT 1
         User.objects.create_superuser(
             username='admin',
             email='admin@vnvc.vn',
@@ -437,6 +510,11 @@ def ensure_superuser():
             first_name='Admin',
             last_name='VNVC',
         )
+        # SQL: INSERT INTO accounts_user
+        #      (username, password, email, first_name, last_name, role,
+        #       is_active, is_staff, is_superuser, date_joined)
+        #      VALUES ('admin', <hashed_password>, 'admin@vnvc.vn',
+        #              'Admin', 'VNVC', 'admin', 1, 1, 1, NOW())
         print("  ✓ Superuser: username=admin / password=admin")
     else:
         print("  ✓ Superuser đã tồn tại")
@@ -468,13 +546,21 @@ def populate():
 
     print("\n=== HOAN THANH! Tong ket: ===")
     print(f"   Trung tam:  {VaccinationCenter.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM appointments_vaccinationcenter
     print(f"   Nhan vien:  {Staff.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM staff_staff
     print(f"   Vaccine:    {Vaccine.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM vaccines_vaccine
     print(f"   Nguoi tiem: {Candidate.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM candidates_candidate
     print(f"   Ho so YT:   {MedicalRecord.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM records_medicalrecord
     print(f"   Lich hen:   {Appointment.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM appointments_appointment
     print(f"   Lan tiem:   {VaccineAdministration.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM vaccines_vaccineadministration
     print(f"   Hoa don:    {Sale.objects.count()}")
+    # SQL: SELECT COUNT(*) FROM sales_sale
     print()
 
 

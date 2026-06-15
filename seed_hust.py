@@ -29,38 +29,51 @@ PASSWORD = '123456'
 print("🗑️  Đang xóa toàn bộ dữ liệu cũ...")
 
 Sale.objects.all().delete()
+# SQL: DELETE FROM sales_sale
 print("   ✓ Sale")
 
 VaccineAdministration.objects.all().delete()
+# SQL: DELETE FROM vaccines_vaccineadministration
 print("   ✓ VaccineAdministration")
 
 Appointment.objects.all().delete()
+# SQL: DELETE FROM appointments_appointment
 print("   ✓ Appointment")
 
 VaccineStock.objects.all().delete()
+# SQL: DELETE FROM vaccines_vaccinestock
 print("   ✓ VaccineStock")
 
 Vaccine.objects.all().delete()
+# SQL: DELETE FROM vaccines_vaccine
 print("   ✓ Vaccine")
 
 MedicalRecord.objects.all().delete()
+# SQL: DELETE FROM records_medicalrecord
 print("   ✓ MedicalRecord")
 
 # Delete staff sub-profiles first (due to OneToOne constraints)
 Doctor.objects.all().delete()
+# SQL: DELETE FROM staff_doctor
 Nurse.objects.all().delete()
+# SQL: DELETE FROM staff_nurse
 Receptionist.objects.all().delete()
+# SQL: DELETE FROM staff_receptionist
 Staff.objects.all().delete()
+# SQL: DELETE FROM staff_staff
 print("   ✓ Staff / Doctor / Nurse / Receptionist")
 
 Candidate.objects.all().delete()
+# SQL: DELETE FROM candidates_candidate
 print("   ✓ Candidate")
 
 VaccinationCenter.objects.all().delete()
+# SQL: DELETE FROM appointments_vaccinationcenter
 print("   ✓ VaccinationCenter")
 
 # Delete all non-superuser accounts
 User.objects.filter(is_superuser=False).delete()
+# SQL: DELETE FROM accounts_user WHERE is_superuser = 0
 print("   ✓ User (non-superuser)")
 
 print()
@@ -75,6 +88,8 @@ center1 = VaccinationCenter.objects.create(
     address='Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội',
     hotline='024 3869 2152',
 )
+# SQL: INSERT INTO appointments_vaccinationcenter (name, address, hotline, created_at)
+#      VALUES ('HUST – Số 1 Đại Cồ Việt', 'Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội', '024 3869 2152', NOW())
 print(f"   ✓ {center1.name}")
 
 center2 = VaccinationCenter.objects.create(
@@ -82,6 +97,8 @@ center2 = VaccinationCenter.objects.create(
     address='36 Thanh Xuân, Thanh Xuân, Hà Nội',
     hotline='024 3858 3660',
 )
+# SQL: INSERT INTO appointments_vaccinationcenter (name, address, hotline, created_at)
+#      VALUES ('HUST – 36 Thanh Xuân', '36 Thanh Xuân, Thanh Xuân, Hà Nội', '024 3858 3660', NOW())
 print(f"   ✓ {center2.name}")
 
 print()
@@ -99,6 +116,9 @@ def create_staff_user(username, first_name, last_name, role_str, center):
         email=f"{username}@hust.edu.vn",
         role=role_str,
     )
+    # SQL: INSERT INTO accounts_user
+    #      (username, password, first_name, last_name, email, role, is_active, date_joined)
+    #      VALUES (%s, <hashed_password>, %s, %s, %s, %s, 1, NOW())
 
     role_map = {
         'doctor': 'doctor',
@@ -112,6 +132,8 @@ def create_staff_user(username, first_name, last_name, role_str, center):
         role=role_map[role_str],
         name=f"{last_name} {first_name}",
     )
+    # SQL: INSERT INTO staff_staff (user_id, center_id, role, name)
+    #      VALUES (%s, %s, %s, %s)
 
     if role_str == 'doctor':
         Doctor.objects.create(
@@ -119,13 +141,18 @@ def create_staff_user(username, first_name, last_name, role_str, center):
             specialization='Y học dự phòng',
             license_number=f'BS-{username.upper()}',
         )
+        # SQL: INSERT INTO staff_doctor (staff_id, specialization, license_number)
+        #      VALUES (%s, 'Y học dự phòng', %s)
     elif role_str == 'nurse':
         Nurse.objects.create(
             staff=staff,
             certification='Điều dưỡng đại học',
         )
+        # SQL: INSERT INTO staff_nurse (staff_id, certification)
+        #      VALUES (%s, 'Điều dưỡng đại học')
     elif role_str == 'receptionist':
         Receptionist.objects.create(staff=staff)
+        # SQL: INSERT INTO staff_receptionist (staff_id) VALUES (%s)
 
     return user, staff
 
@@ -203,6 +230,7 @@ print()
 # ──────────────────────────────────────────
 print("🔑 Kiểm tra tài khoản admin...")
 if not User.objects.filter(username='admin').exists():
+    # SQL: SELECT 1 FROM accounts_user WHERE username = 'admin' LIMIT 1
     User.objects.create_superuser(
         username='admin',
         password=PASSWORD,
@@ -211,6 +239,11 @@ if not User.objects.filter(username='admin').exists():
         last_name='Viên',
         role='admin',
     )
+    # SQL: INSERT INTO accounts_user
+    #      (username, password, email, first_name, last_name, role,
+    #       is_active, is_staff, is_superuser, date_joined)
+    #      VALUES ('admin', <hashed_password>, 'admin@hust.edu.vn',
+    #              'Quản trị', 'Viên', 'admin', 1, 1, 1, NOW())
     print(f"   ✓ Tạo admin: admin  |  Mật khẩu: {PASSWORD}")
 else:
     print("   ℹ️  Tài khoản admin đã tồn tại, bỏ qua.")
