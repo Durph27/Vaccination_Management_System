@@ -112,8 +112,7 @@
               <div class="center-address">{{ stock.center.address }}</div>
               <div class="center-hotline"><i class="bi bi-telephone-fill"></i> {{ stock.center.hotline }}</div>
               {% if stock.expiry_date %}
-              <div style="font-size:11px;color:var(--text-light);margin-top:4px"><i class="bi bi-calendar3"></i> HSD: {{
-                stock.expiry_date|date:"d/m/Y" }}</div>
+              <div style="font-size:11px;color:var(--text-light);margin-top:4px"><i class="bi bi-calendar3"></i> HSD: {{ stock.expiry_date|date:"d/m/Y" }}</div>
               {% endif %}
             </div>
             <div class="center-qty">

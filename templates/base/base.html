@@ -1,150 +1,160 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Treat or Chet{% endblock %} — Hệ thống quản lý tiêm chủng</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link href="{% static 'css/main.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="{% if request.user.is_authenticated %}layout-authenticated{% else %}layout-guest{% endif %}">
 
-{% if request.user.is_authenticated %}
-<!-- ===== SIDEBAR ===== -->
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <div class="brand-icon"><img src="{% static 'images/logo.png' %}" alt="Treat or Chet Logo" style="width:100%;height:100%;object-fit:contain;border-radius:8px;"></div>
-        <div class="brand-text">
-            <span class="brand-name">Treat or Chet</span>
-            <span class="brand-sub">Quản lý tiêm chủng</span>
-        </div>
-    </div>
-
-    <div class="sidebar-user">
-        <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
-        <div class="user-info">
-            <span class="user-name">{{ request.user.get_full_name }}</span>
-            <span class="user-role">{{ request.user.get_role_display }}</span>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <span class="nav-label">Tổng quan</span>
-            <a href="{% url 'candidates:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <i class="bi bi-grid-fill"></i><span>Dashboard</span>
-            </a>
-        </div>
-
-        {% if request.user.is_candidate_user %}
-        <div class="nav-section">
-            <span class="nav-label">Cá nhân</span>
-            <a href="{% url 'candidates:my_profile' %}" class="nav-item">
-                <i class="bi bi-person-fill"></i><span>Hồ sơ của tôi</span>
-            </a>
-            <a href="{% url 'appointments:my_list' %}" class="nav-item">
-                <i class="bi bi-calendar2-check-fill"></i><span>Lịch hẹn</span>
-            </a>
-            <a href="{% url 'appointments:book' %}" class="nav-item">
-                <i class="bi bi-plus-circle-fill"></i><span>Đặt lịch mới</span>
-            </a>
-            <a href="{% url 'vaccines:my_history' %}" class="nav-item">
-                <i class="bi bi-activity"></i><span>Lịch sử tiêm</span>
-            </a>
-            <a href="{% url 'records:my_record' %}" class="nav-item">
-                <i class="bi bi-file-medical-fill"></i><span>Hồ sơ y tế</span>
-            </a>
-            <a href="{% url 'sales:my_sales' %}" class="nav-item">
-                <i class="bi bi-receipt"></i><span>Hóa đơn</span>
-            </a>
-        </div>
-        <div class="nav-section">
-            <span class="nav-label">Khám phá</span>
-            <a href="{% url 'vaccines:list' %}" class="nav-item {% if 'vaccines' in request.path %}active{% endif %}">
-                <i class="bi bi-capsule-pill"></i><span>Danh mục Vaccine</span>
-            </a>
-        </div>
-        {% else %}
-        <div class="nav-section">
-            <span class="nav-label">Quản lý</span>
-            <a href="{% url 'candidates:list' %}" class="nav-item">
-                <i class="bi bi-people-fill"></i><span>Người tiêm</span>
-            </a>
-            <a href="{% url 'appointments:all_list' %}" class="nav-item">
-                <i class="bi bi-calendar2-week-fill"></i><span>Tất cả lịch hẹn</span>
-            </a>
-            <a href="{% url 'vaccines:list' %}" class="nav-item">
-                <i class="bi bi-capsule"></i><span>Vaccine</span>
-            </a>
-            {% if request.user.is_receptionist %}
-            <a href="{% url 'sales:list' %}" class="nav-item">
-                <i class="bi bi-cash-stack"></i><span>Hóa đơn</span>
-            </a>
-            {% endif %}
-        </div>
-        {% if request.user.is_receptionist %}
-        <div class="nav-section">
-            <span class="nav-label">Lễ tân</span>
-            <a href="{% url 'candidates:create' %}" class="nav-item">
-                <i class="bi bi-person-plus-fill"></i><span>Tạo tài khoản người tiêm</span>
-            </a>
-        </div>
-        {% endif %}
-        {% endif %}
-    </nav>
-
-    <div class="sidebar-footer">
-        <a href="{% url 'accounts:logout' %}" class="nav-item logout-btn">
-            <i class="bi bi-box-arrow-left"></i><span>Đăng xuất</span>
-        </a>
-    </div>
-</aside>
-
-<!-- ===== MAIN CONTENT ===== -->
-<div class="main-wrapper">
-    <header class="topbar">
-        <button class="sidebar-toggle" id="sidebarToggle">
-            <i class="bi bi-list"></i>
-        </button>
-        <div class="topbar-title">{% block page_title %}{% endblock %}</div>
-        <div class="topbar-actions">
-            {% if not request.user.is_candidate_user %}
-            <a href="{% url 'appointments:all_list' %}?status=pending" class="topbar-btn">
-                <i class="bi bi-bell-fill"></i>
-            </a>
-            {% endif %}
-        </div>
-    </header>
-
-    <main class="main-content">
-        {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}-fill me-2"></i>
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    {% if request.user.is_authenticated %}
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><img src="{% static 'images/logo.png' %}" alt="Treat or Chet Logo"
+                    style="width:100%;height:100%;object-fit:contain;border-radius:8px;"></div>
+            <div class="brand-text">
+                <span class="brand-name">Trick or Chet</span>
+                <span class="brand-sub">Quản lý tiêm chủng</span>
             </div>
-            {% endfor %}
         </div>
-        {% endif %}
 
-        {% block content %}{% endblock %}
-    </main>
-</div>
+        <div class="sidebar-user">
+            <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-info">
+                <span class="user-name">{{ request.user.get_full_name }}</span>
+                <span class="user-role">{{ request.user.get_role_display }}</span>
+            </div>
+        </div>
 
-{% else %}
-<!-- Guest layout -->
-{% block guest_content %}{% endblock %}
-{% endif %}
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <span class="nav-label">Tổng quan</span>
+                <a href="{% url 'candidates:dashboard' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-fill"></i><span>Dashboard</span>
+                </a>
+            </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/main.js' %}"></script>
-{% block extra_js %}{% endblock %}
+            {% if request.user.is_candidate_user %}
+            <div class="nav-section">
+                <span class="nav-label">Cá nhân</span>
+                <a href="{% url 'candidates:my_profile' %}" class="nav-item">
+                    <i class="bi bi-person-fill"></i><span>Hồ sơ của tôi</span>
+                </a>
+                <a href="{% url 'appointments:my_list' %}" class="nav-item">
+                    <i class="bi bi-calendar2-check-fill"></i><span>Lịch hẹn</span>
+                </a>
+                <a href="{% url 'appointments:book' %}" class="nav-item">
+                    <i class="bi bi-plus-circle-fill"></i><span>Đặt lịch mới</span>
+                </a>
+                <a href="{% url 'vaccines:my_history' %}" class="nav-item">
+                    <i class="bi bi-activity"></i><span>Lịch sử tiêm</span>
+                </a>
+                <a href="{% url 'records:my_record' %}" class="nav-item">
+                    <i class="bi bi-file-medical-fill"></i><span>Hồ sơ y tế</span>
+                </a>
+                <a href="{% url 'sales:my_sales' %}" class="nav-item">
+                    <i class="bi bi-receipt"></i><span>Hóa đơn</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <span class="nav-label">Khám phá</span>
+                <a href="{% url 'vaccines:list' %}"
+                    class="nav-item {% if 'vaccines' in request.path %}active{% endif %}">
+                    <i class="bi bi-capsule-pill"></i><span>Danh mục Vaccine</span>
+                </a>
+            </div>
+            {% else %}
+            <div class="nav-section">
+                <span class="nav-label">Quản lý</span>
+                <a href="{% url 'candidates:list' %}" class="nav-item">
+                    <i class="bi bi-people-fill"></i><span>Người tiêm</span>
+                </a>
+                <a href="{% url 'appointments:all_list' %}" class="nav-item">
+                    <i class="bi bi-calendar2-week-fill"></i><span>Tất cả lịch hẹn</span>
+                </a>
+                <a href="{% url 'vaccines:list' %}" class="nav-item">
+                    <i class="bi bi-capsule"></i><span>Vaccine</span>
+                </a>
+                {% if request.user.is_receptionist %}
+                <a href="{% url 'sales:list' %}" class="nav-item">
+                    <i class="bi bi-cash-stack"></i><span>Hóa đơn</span>
+                </a>
+                {% endif %}
+            </div>
+            {% if request.user.is_receptionist %}
+            <div class="nav-section">
+                <span class="nav-label">Lễ tân</span>
+                <a href="{% url 'candidates:create' %}" class="nav-item">
+                    <i class="bi bi-person-plus-fill"></i><span>Tạo tài khoản người tiêm</span>
+                </a>
+            </div>
+            {% endif %}
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'accounts:logout' %}" class="nav-item logout-btn">
+                <i class="bi bi-box-arrow-left"></i><span>Đăng xuất</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-wrapper">
+        <header class="topbar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+            <div class="topbar-actions">
+                {% if not request.user.is_candidate_user %}
+                <a href="{% url 'appointments:all_list' %}?status=pending" class="topbar-btn">
+                    <i class="bi bi-bell-fill"></i>
+                </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <main class="main-content">
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i
+                        class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}-fill me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    {% else %}
+    <!-- Guest layout -->
+    {% block guest_content %}{% endblock %}
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
+
 </html>
