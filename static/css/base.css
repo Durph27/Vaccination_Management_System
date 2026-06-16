@@ -1,0 +1,44 @@
+/* ============================================
+   Trick or Chet - Main Stylesheet
+   Aesthetic: Refined Medical / Clinical Luxury
+   ============================================ */
+
+:root {
+  /* Colors */
+  --primary: #0A5C7F;
+  --primary-light: #1A8CB3;
+  --primary-dark: #063D55;
+  --accent: #00C9A7;
+  --accent-light: #E0FBF5;
+  --danger: #E05252;
+  --warning: #F0A500;
+  --success: #28A87D;
+  --bg: #F4F7FB;
+  --bg-white: #FFFFFF;
+  --sidebar-bg: #063D55;
+  --sidebar-text: rgba(255,255,255,0.75);
+  --sidebar-active: #FFFFFF;
+  --text-dark: #1A2B3C;
+  --text-mid: #4A6070;
+  --text-light: #8AA0B2;
+  --border: #DDE6EF;
+  --card-shadow: 0 2px 16px rgba(6,61,85,0.08);
+  --card-shadow-hover: 0 8px 32px rgba(6,61,85,0.15);
+
+  /* Sizing */
+  --sidebar-w: 260px;
+  --topbar-h: 64px;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Be Vietnam Pro', 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text-dark);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
