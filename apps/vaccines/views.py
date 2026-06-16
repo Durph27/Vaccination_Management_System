@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.utils import timezone
 from .models import Vaccine, VaccineAdministration, VaccineStock
 from apps.candidates.models import Candidate
@@ -44,7 +44,7 @@ def vaccine_detail(request, pk):
     vaccine = get_object_or_404(Vaccine, pk=pk)
     # SQL: SELECT * FROM vaccines_vaccine WHERE vaccine_id = %s LIMIT 1
 
-    centers = vaccine.vaccinestock_set.select_related('center').filter(quantity__gt=0)
+    centers = VaccineStock.objects.select_related('center').filter(vaccine=vaccine, quantity__gt=0)
     # SQL: SELECT vs.*, vc.*
     #      FROM vaccines_vaccinestock vs
     #      JOIN appointments_vaccinationcenter vc ON vs.center_id = vc.center_id
@@ -152,20 +152,38 @@ def add_vaccine_administration(request, appointment_pk):
             vaccine = get_object_or_404(Vaccine, pk=vaccine_id)
             # SQL: SELECT * FROM vaccines_vaccine WHERE vaccine_id = %s LIMIT 1
 
-            VaccineAdministration.objects.create(
-                appointment=appointment,
-                vaccine=vaccine,
-                doctor=doctor_profile,
-                dose_number=dose_number,
-                notes=notes,
-            )
-            # SQL: INSERT INTO vaccines_vaccineadministration
-            #      (appointment_id, vaccine_id, doctor_id, nurse_id, dose_number, notes,
-            #       immunization_hour, post_vaccination_status)
-            #      VALUES (%s, %s, %s, NULL, %s, %s, NULL, '')
+            # Check stock at the appointment's center
+            try:
+                stock = VaccineStock.objects.get(vaccine=vaccine, center=appointment.center)
+                # SQL: SELECT * FROM vaccines_vaccinestock
+                #      WHERE vaccine_id = %s AND center_id = %s LIMIT 1
+            except VaccineStock.DoesNotExist:
+                stock = None
 
-            messages.success(request, f'Đã chỉ định vaccine {vaccine.name} cho {appointment.candidate.full_name}.')
-            return redirect('appointments:detail', pk=appointment_pk)
+            if stock is None or stock.quantity <= 0:
+                messages.error(request, f'Vaccine {vaccine.name} đã hết hàng tại trung tâm {appointment.center.name}.')
+            else:
+                VaccineAdministration.objects.create(
+                    appointment=appointment,
+                    vaccine=vaccine,
+                    doctor=doctor_profile,
+                    dose_number=dose_number,
+                    notes=notes,
+                )
+                # SQL: INSERT INTO vaccines_vaccineadministration
+                #      (appointment_id, vaccine_id, doctor_id, nurse_id, dose_number, notes,
+                #       immunization_hour, post_vaccination_status)
+                #      VALUES (%s, %s, %s, NULL, %s, %s, NULL, '')
+
+                # Reduce stock by 1
+                stock.quantity = F('quantity') - 1
+                stock.save(update_fields=['quantity'])
+                # SQL: UPDATE vaccines_vaccinestock
+                #      SET quantity = quantity - 1
+                #      WHERE id = %s
+
+                messages.success(request, f'Đã chỉ định vaccine {vaccine.name} cho {appointment.candidate.full_name}.')
+                return redirect('appointments:detail', pk=appointment_pk)
 
     return render(request, 'vaccines/add_administration.html', {
         'appointment': appointment,
