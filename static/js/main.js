@@ -26,4 +26,15 @@ document.addEventListener('DOMContentLoaded', function () {
       item.classList.add('active');
     }
   });
+
+  const landingHeader = document.querySelector('.landing-header');
+  if (landingHeader) {
+    const toggleLandingHeader = () => {
+      landingHeader.classList.toggle('is-hidden', window.scrollY > 40);
+    };
+
+    toggleLandingHeader();
+    window.addEventListener('scroll', toggleLandingHeader, { passive: true });
+  }
+
 });

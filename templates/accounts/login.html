@@ -1,53 +1,263 @@
 {% extends 'base/base.html' %}
 {% load static %}
 
+{% block title %}Trick or Chet{% endblock %}
+
 {% block guest_content %}
-<div class="auth-wrapper">
-  <div class="auth-left">
-    <div class="auth-left-logo">
-      <div class="auth-logo-icon"><img src="{% static 'images/logo.png' %}" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:10px;"></div>
-      <span class="auth-logo-name">Treat or Chet</span>
-    </div>
-    <h1 class="auth-headline">
-      Chăm sóc sức khỏe <strong>thông minh hơn</strong> mỗi ngày
-    </h1>
-    <p class="auth-subtext">
-      Đặt lịch tiêm chủng, theo dõi hồ sơ y tế và lịch sử tiêm vaccine của bạn — mọi lúc, mọi nơi.
-    </p>
-  </div>
-
-  <div class="auth-right">
-    <div class="auth-form-wrap">
-      <h2 class="auth-form-title">Đăng nhập</h2>
-      <p class="auth-form-sub">Nhập thông tin tài khoản của bạn để tiếp tục</p>
-
-      {% if messages %}
-      {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} mb-3" role="alert">{{ message }}</div>
-      {% endfor %}
-      {% endif %}
-
-      <form method="post" class="form-vc">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label">Tên đăng nhập</label>
-          <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" autofocus required>
-        </div>
-        <div class="mb-4">
-          <label class="form-label">Mật khẩu</label>
-          <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-        </div>
-        <button type="submit" class="btn-vc btn-primary-vc w-100 justify-content-center py-2" style="font-size:15px">
-          <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
-        </button>
-      </form>
-
-      <div class="text-center mt-4" style="color: var(--text-light); font-size: 13px;">
-        Chưa có tài khoản?
-        <a href="{% url 'accounts:register' %}"
-          style="color: var(--primary); font-weight:500; text-decoration:none">Đăng ký ngay</a>
+<div class="landing-page">
+  <header class="landing-header">
+    <div class="landing-shell landing-nav">
+      <a class="landing-brand" href="#top" aria-label="Trick or Chet">
+        <span class="landing-brand-mark">
+          <img src="{% static 'images/logo.png' %}" alt="Trick or Chet">
+        </span>
+        <span>
+          <strong>Trick or Chet</strong>
+          <small>Hệ thống quản lý tiêm chủng</small>
+        </span>
+      </a>
+      <nav class="landing-menu" aria-label="Điều hướng trang chủ">
+        <a href="#services">Dịch vụ</a>
+        <a href="#why">Lợi ích</a>
+        <a href="#process">Quy trình</a>
+        <a href="#resources">Tài nguyên</a>
+        <a href="#support">Hỗ trợ</a>
+      </nav>
+      <div class="landing-actions">
+        <a href="{% url 'accounts:register' %}" class="landing-link-action">Đăng ký</a>
       </div>
     </div>
-  </div>
+  </header>
+
+  <main id="top">
+    <section class="landing-hero">
+      <div class="landing-shell hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">Chăm sóc chủ động cho mỗi mũi tiêm</span>
+          <h1>Quản lý lịch tiêm, hồ sơ y tế và lịch sử vaccine trong một nơi.</h1>
+          <p>
+            Trick or Chet giúp người tiêm đặt lịch nhanh hơn, theo dõi trạng thái rõ ràng hơn
+            và hỗ trợ nhân viên vận hành quy trình tiêm chủng gọn gàng.
+          </p>
+          <div class="hero-highlights" aria-label="Điểm nổi bật">
+            <span><i class="bi bi-calendar2-check"></i> Đặt lịch trực tuyến</span>
+            <span><i class="bi bi-file-medical"></i> Hồ sơ y tế tập trung</span>
+            <span><i class="bi bi-shield-check"></i> Theo dõi sau tiêm</span>
+          </div>
+        </div>
+
+        <div class="hero-login-card" aria-label="Đăng nhập hệ thống">
+          <div class="login-card-header">
+            <span class="login-card-icon"><i class="bi bi-heart-pulse"></i></span>
+            <div>
+              <h2>Đăng nhập</h2>
+              <p>Nhập thông tin tài khoản để tiếp tục</p>
+            </div>
+          </div>
+
+          {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} mb-3" role="alert">{{ message }}</div>
+          {% endfor %}
+          {% endif %}
+
+          <form method="post" class="form-vc">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Tên đăng nhập</label>
+              <input type="text" name="username" class="form-control" placeholder="Nhập tên đăng nhập" autofocus required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Mật khẩu</label>
+              <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-vc btn-primary-vc w-100 justify-content-center py-2" style="font-size:15px">
+              <i class="bi bi-box-arrow-in-right"></i> Đăng nhập
+            </button>
+          </form>
+
+          <div class="login-register-note">
+            Chưa có tài khoản?
+            <a href="{% url 'accounts:register' %}">Đăng ký ngay</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-info-band">
+      <div class="landing-shell info-grid">
+        <div class="info-item">
+          <i class="bi bi-telephone-inbound"></i>
+          <div>
+            <strong>Đường dây hỗ trợ</strong>
+            <span>Tiếp nhận yêu cầu đặt lịch và tư vấn hồ sơ</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="bi bi-geo-alt"></i>
+          <div>
+            <strong>Trung tâm tiêm chủng</strong>
+            <span>Quản lý điểm tiêm, vaccine và lịch hẹn</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <i class="bi bi-clock-history"></i>
+          <div>
+            <strong>Theo dõi liên tục</strong>
+            <span>Lưu lịch sử tiêm và trạng thái sau tiêm</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section" id="services">
+      <div class="landing-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Dịch vụ chính</span>
+          <h2>Một trải nghiệm tiêm chủng rõ ràng cho cả người dân và nhân viên.</h2>
+        </div>
+        <div class="service-grid">
+          <article class="service-card">
+            <span class="service-icon"><i class="bi bi-calendar2-plus"></i></span>
+            <h3>Đặt lịch tiêm</h3>
+            <p>Người tiêm chọn trung tâm, thời gian phù hợp và theo dõi trạng thái xác nhận.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-icon"><i class="bi bi-capsule-pill"></i></span>
+            <h3>Danh mục vaccine</h3>
+            <p>Thông tin vaccine, số liều, tồn kho và mô tả được trình bày dễ tra cứu.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-icon"><i class="bi bi-journal-medical"></i></span>
+            <h3>Hồ sơ y tế</h3>
+            <p>Lưu thông tin sức khỏe cơ bản để nhân viên kiểm tra trước khi tiêm.</p>
+          </article>
+          <article class="service-card">
+            <span class="service-icon"><i class="bi bi-receipt-cutoff"></i></span>
+            <h3>Hóa đơn</h3>
+            <p>Quản lý thanh toán và lịch sử giao dịch gắn với từng lượt tiêm.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section why-section" id="why">
+      <div class="landing-shell why-grid">
+        <div class="why-media">
+          <img src="{% static 'images/universal-healthcare-558x372.jpg' %}" alt="Chăm sóc sức khỏe toàn diện">
+        </div>
+        <div class="why-copy">
+          <span class="eyebrow">Lợi ích vận hành</span>
+          <h2>Thiết kế cho quy trình tiêm chủng thực tế, không chỉ để nhìn đẹp.</h2>
+          <p>
+            Giao diện được chia rõ theo vai trò, giúp người tiêm xem thông tin nhanh,
+            còn nhân viên dễ kiểm tra lịch hẹn, hồ sơ và trạng thái tiêm.
+          </p>
+          <div class="why-list">
+            <div>
+              <i class="bi bi-check2-circle"></i>
+              <span>Giảm thao tác lặp khi tiếp nhận lịch hẹn.</span>
+            </div>
+            <div>
+              <i class="bi bi-check2-circle"></i>
+              <span>Tập trung dữ liệu hồ sơ, vaccine và hóa đơn.</span>
+            </div>
+            <div>
+              <i class="bi bi-check2-circle"></i>
+              <span>Dễ mở rộng giao diện mà không thay đổi backend.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section process-section" id="process">
+      <div class="landing-shell process-grid">
+        <div class="section-heading">
+          <span class="eyebrow">Quy trình</span>
+          <h2>Từ đặt lịch đến hoàn tất tiêm được chia thành các bước dễ theo dõi.</h2>
+          <p>Giao diện sau đăng nhập vẫn giữ phong cách dashboard để nhân viên thao tác nhanh và người tiêm xem thông tin không bị rối.</p>
+        </div>
+        <div class="process-list">
+          <div class="process-item">
+            <span>01</span>
+            <div>
+              <h3>Tạo hồ sơ hoặc đăng nhập</h3>
+              <p>Người tiêm dùng tài khoản để quản lý thông tin cá nhân.</p>
+            </div>
+          </div>
+          <div class="process-item">
+            <span>02</span>
+            <div>
+              <h3>Đặt lịch tại trung tâm</h3>
+              <p>Lịch hẹn được gửi vào hệ thống để nhân viên tiếp nhận.</p>
+            </div>
+          </div>
+          <div class="process-item">
+            <span>03</span>
+            <div>
+              <h3>Khám sàng lọc và tiêm</h3>
+              <p>Thông tin y tế, vaccine và trạng thái tiêm được cập nhật tập trung.</p>
+            </div>
+          </div>
+          <div class="process-item">
+            <span>04</span>
+            <div>
+              <h3>Theo dõi lịch sử</h3>
+              <p>Người tiêm có thể xem lại các lần tiêm và hồ sơ liên quan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section resources-section" id="resources">
+      <div class="landing-shell">
+        <div class="section-heading">
+          <span class="eyebrow">Tài nguyên</span>
+          <h2>Thông tin cần thiết trước và sau khi tiêm được trình bày dễ quét.</h2>
+        </div>
+        <div class="resource-grid">
+          <article class="resource-card">
+            <img src="{% static 'images/rmg-article-vaccination-for-adults.jpg' %}" alt="Vaccine và ống tiêm">
+            <div>
+              <span>Trước khi tiêm</span>
+              <h3>Chuẩn bị hồ sơ và lịch hẹn</h3>
+              <p>Người tiêm kiểm tra thông tin cá nhân, ngày hẹn và trung tâm đã chọn.</p>
+            </div>
+          </article>
+          <article class="resource-card">
+            <img src="{% static 'images/Healthcare-professionalshaking-hands-William-Russell.jpg' %}" alt="Tư vấn y tế">
+            <div>
+              <span>Tại trung tâm</span>
+              <h3>Tiếp nhận và khám sàng lọc</h3>
+              <p>Nhân viên theo dõi trạng thái để quy trình từ tiếp nhận đến tiêm rõ ràng.</p>
+            </div>
+          </article>
+          <article class="resource-card">
+            <img src="{% static 'images/download.jpg' %}" alt="Chăm sóc sau tiêm">
+            <div>
+              <span>Sau khi tiêm</span>
+              <h3>Lưu lịch sử và theo dõi</h3>
+              <p>Lịch sử tiêm và thông tin liên quan được giữ lại để tra cứu khi cần.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section support-section" id="support">
+      <div class="landing-shell support-panel">
+        <div>
+          <span class="eyebrow">Sẵn sàng bắt đầu</span>
+          <h2>Đăng nhập để tiếp tục quản lý lịch tiêm của bạn.</h2>
+          <p>Trick or Chet giữ các thao tác chính ngắn gọn, dễ hiểu và phù hợp với quy trình tiêm chủng thực tế.</p>
+        </div>
+        <a href="#top" class="btn-vc btn-primary-vc">
+          <i class="bi bi-arrow-up-circle"></i> Quay lại đăng nhập
+        </a>
+      </div>
+    </section>
+  </main>
 </div>
 {% endblock %}

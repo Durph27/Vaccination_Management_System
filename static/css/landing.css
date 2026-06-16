@@ -1,0 +1,640 @@
+/* ======= MEDISCH-INSPIRED GUEST LANDING ======= */
+.layout-guest {
+  display: block;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.landing-page {
+  --guest-header-offset: 82px;
+  min-height: 100vh;
+  color: var(--text-dark);
+  background: #fff;
+  scroll-padding-top: var(--guest-header-offset);
+}
+
+.landing-shell {
+  width: min(1360px, calc(100% - 56px));
+  margin: 0 auto;
+}
+
+.landing-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding: 0;
+  background:
+    linear-gradient(90deg, rgba(6,61,85,0.98), rgba(10,92,127,0.96));
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 26px rgba(6,61,85,0.12);
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.landing-header.is-hidden {
+  transform: translateY(-100%);
+  box-shadow: none;
+}
+
+.landing-nav {
+  min-height: 82px;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.82fr) auto auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 10px 0;
+}
+
+.landing-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  text-decoration: none;
+  transform: translateX(-100px);
+}
+
+.landing-brand-mark {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(255,255,255,0.28);
+}
+
+.landing-brand-mark img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.landing-brand strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.landing-brand small {
+  display: block;
+  color: rgba(255,255,255,0.72);
+  font-size: 12px;
+  margin-top: 1px;
+}
+
+.landing-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transform: translateX(18px);
+}
+
+.landing-menu a,
+.landing-link-action {
+  color: rgba(255,255,255,0.82);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.landing-menu a {
+  padding: 9px 12px;
+  border-radius: 8px;
+}
+
+.landing-menu a:hover {
+  background: rgba(255,255,255,0.12);
+}
+
+.landing-menu a:hover,
+.landing-link-action:hover {
+  color: #fff;
+}
+
+.landing-link-action {
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--accent);
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 10px 26px rgba(0,201,167,0.22);
+}
+
+.landing-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  transform: translateX(18px);
+}
+
+.landing-hero {
+  position: relative;
+  padding: 92px 0 96px;
+  background:
+    linear-gradient(90deg, rgba(6,61,85,0.92) 0%, rgba(6,61,85,0.74) 44%, rgba(6,61,85,0.42) 100%),
+    url("../images/successful-medical-team.jpg") center 42% / cover no-repeat;
+  overflow: hidden;
+}
+
+.landing-hero::after {
+  content: none;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.58fr);
+  gap: 54px;
+  align-items: center;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.hero-copy .eyebrow {
+  color: var(--accent);
+}
+
+.hero-copy h1 {
+  max-width: 720px;
+  font-size: clamp(36px, 5vw, 58px);
+  line-height: 1.08;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 22px;
+}
+
+.hero-copy p {
+  max-width: 610px;
+  color: rgba(255,255,255,0.82);
+  font-size: 17px;
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+.hero-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-highlights span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.24);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
+}
+
+.hero-highlights i {
+  color: var(--accent);
+}
+
+.hero-login-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 24px 70px rgba(6,61,85,0.14);
+}
+
+.login-card-header {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.login-card-icon {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--accent-light);
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.login-card-header h2 {
+  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.login-card-header p {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.login-register-note {
+  margin-top: 22px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.login-register-note a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.landing-info-band {
+  background: var(--primary);
+  color: #fff;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.info-item {
+  min-height: 132px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 28px 24px;
+  border-right: 1px solid rgba(255,255,255,0.14);
+}
+
+.info-item:last-child {
+  border-right: 0;
+}
+
+.info-item i {
+  font-size: 28px;
+  color: var(--accent);
+}
+
+.info-item strong,
+.info-item span {
+  display: block;
+}
+
+.info-item strong {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.info-item span {
+  color: rgba(255,255,255,0.72);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.landing-section {
+  position: relative;
+  min-height: calc(100vh - var(--guest-header-offset));
+  padding: 104px 0;
+  display: flex;
+  align-items: center;
+  scroll-margin-top: var(--guest-header-offset);
+  overflow: hidden;
+}
+
+.landing-section > .landing-shell {
+  position: relative;
+  z-index: 1;
+  width: min(1360px, calc(100% - 56px));
+}
+
+.landing-section::before,
+.landing-section::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.landing-section::before {
+  top: 0;
+  height: 96px;
+  background: linear-gradient(180deg, rgba(244,250,252,0.84), rgba(244,250,252,0));
+}
+
+.landing-section::after {
+  bottom: 0;
+  height: 118px;
+  background: linear-gradient(0deg, rgba(244,250,252,0.78), rgba(244,250,252,0));
+}
+
+#services {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.86) 58%, rgba(255,255,255,0.72) 100%),
+    url("../images/rmg-article-vaccination-for-adults.jpg") right center / cover no-repeat;
+}
+
+.section-heading {
+  max-width: 720px;
+  margin-bottom: 34px;
+}
+
+.section-heading h2,
+.support-panel h2 {
+  color: #123044;
+  font-size: clamp(28px, 3.2vw, 42px);
+  line-height: 1.18;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.section-heading p,
+.support-panel p {
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin: 0;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.service-card {
+  min-height: 248px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 34px rgba(6,61,85,0.06);
+}
+
+.service-icon {
+  width: 54px;
+  height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--primary);
+  background: #eef8fb;
+  font-size: 24px;
+  margin-bottom: 22px;
+}
+
+.service-card h3,
+.process-item h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #123044;
+  margin-bottom: 10px;
+}
+
+.service-card p,
+.process-item p {
+  color: var(--text-mid);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.why-section {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.94), rgba(240,248,251,0.84)),
+    url("../images/universal-healthcare-558x372.jpg") center center / cover no-repeat;
+}
+
+.why-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  gap: 54px;
+  align-items: center;
+}
+
+.why-media {
+  position: relative;
+  min-height: 380px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 24px 58px rgba(6,61,85,0.14);
+}
+
+.why-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.why-copy h2 {
+  color: #123044;
+  font-size: clamp(28px, 3.2vw, 42px);
+  line-height: 1.18;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.why-copy p {
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+
+.why-list {
+  display: grid;
+  gap: 12px;
+}
+
+.why-list div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f7fbfd;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+
+.why-list i {
+  color: var(--accent);
+  font-size: 18px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.process-section {
+  background:
+    linear-gradient(90deg, rgba(244,250,252,0.9) 0%, rgba(226,239,245,0.76) 48%, rgba(10,92,127,0.48) 100%),
+    url("../images/ALOR-24-308-Social-Graphic---Industry-4.0-for-Healthcare_Banner.jpg") center center / cover no-repeat;
+}
+
+.process-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(360px, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+
+.process-list {
+  display: grid;
+  gap: 14px;
+}
+
+.process-item {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+.process-item > span {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.resources-section {
+  background:
+    linear-gradient(180deg, rgba(247,251,253,0.92) 0%, rgba(223,238,245,0.84) 100%),
+    url("../images/Healthcare-professionalshaking-hands-William-Russell.jpg") center center / cover no-repeat;
+}
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.resource-card {
+  overflow: hidden;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: 0 14px 36px rgba(6,61,85,0.08);
+}
+
+.resource-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
+
+.resource-card div {
+  padding: 22px;
+}
+
+.resource-card span {
+  display: block;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.resource-card h3 {
+  color: #123044;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.resource-card p {
+  color: var(--text-mid);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.support-section {
+  min-height: auto;
+  padding: 68px 0;
+  background:
+    linear-gradient(135deg, rgba(6,61,85,0.94), rgba(10,92,127,0.82)),
+    url("../images/154644-yt.jpg") center center / cover no-repeat;
+}
+
+.support-section::before,
+.support-section::after {
+  content: none;
+}
+
+.support-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+}
+
+.support-panel > div {
+  max-width: 760px;
+}
+
+.support-panel .eyebrow {
+  margin-bottom: 10px;
+  color: var(--accent);
+}
+
+.support-panel h2 {
+  max-width: 660px;
+  font-size: clamp(26px, 2.4vw, 38px);
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: #fff;
+}
+
+.support-panel p {
+  color: rgba(255,255,255,0.76);
+}
+
+.support-panel .btn-vc {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
