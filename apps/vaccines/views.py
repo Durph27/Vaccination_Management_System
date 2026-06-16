@@ -114,13 +114,30 @@ def candidate_vaccine_history(request, candidate_pk):
 
 @login_required
 def add_vaccine_administration(request, appointment_pk):
-    """Doctor/Admin prescribes a vaccine for a candidate's appointment."""
+    """Doctor/Admin prescribes a vaccine for a candidate's appointment.
+    Only allowed when the appointment is in 'waiting_exam' status.
+    """
     if not request.user.is_doctor():
         messages.error(request, 'Chỉ bác sĩ hoặc quản trị viên mới có thể chỉ định vaccine.')
         return redirect('candidates:dashboard')
 
     appointment = get_object_or_404(Appointment, pk=appointment_pk)
     # SQL: SELECT * FROM appointments_appointment WHERE appointment_id = %s LIMIT 1
+
+    # Doctor can only prescribe for appointments that are in waiting_exam
+    if request.user.role != 'admin' and appointment.status != 'waiting_exam':
+        messages.error(request, 'Chỉ có thể chỉ định vaccine cho lịch hẹn đang ở trạng thái “Đang chờ khám”.')
+        return redirect('appointments:detail', pk=appointment_pk)
+
+    # Center-based access control: non-admin doctors can only work in their own center
+    if request.user.role != 'admin':
+        try:
+            staff_center = request.user.staff_profile.center
+        except Exception:
+            staff_center = None
+        if staff_center and appointment.center != staff_center:
+            messages.error(request, 'Bạn chỉ có thể chỉ định vaccine cho lịch hẹn tại cơ sở của bạn.')
+            return redirect('appointments:detail', pk=appointment_pk)
 
     vaccines = Vaccine.objects.all().order_by('name')
     # SQL: SELECT * FROM vaccines_vaccine ORDER BY name ASC
@@ -193,13 +210,35 @@ def add_vaccine_administration(request, appointment_pk):
 
 @login_required
 def nurse_update_administration(request, adm_pk):
-    """Nurse/Admin updates immunization_hour and post_vaccination_status."""
+    """Nurse/Admin updates immunization_hour and post_vaccination_status.
+
+    Status flow (automatic):
+    - If immunization_hour is saved for the first time and appointment is at
+      waiting_injection → appointment moves to waiting_observation.
+    - If post_vaccination_status is also filled and appointment is at
+      waiting_observation → appointment moves to waiting_payment.
+    """
     if not request.user.is_nurse():
         messages.error(request, 'Chỉ y tá hoặc quản trị viên mới có thể cập nhật thông tin tiêm.')
         return redirect('candidates:dashboard')
 
     adm = get_object_or_404(VaccineAdministration, pk=adm_pk)
     # SQL: SELECT * FROM vaccines_vaccineadministration WHERE vaccine_administration_id = %s LIMIT 1
+
+    # Nurse can only update when appointment is waiting_injection or waiting_observation
+    if request.user.role != 'admin' and adm.appointment.status not in ('waiting_injection', 'waiting_observation'):
+        messages.error(request, 'Chỉ có thể cập nhật thông tin tiêm khi lịch hẹn đang ở trạng thái “Đang chờ tiêm” hoặc “Chờ theo dõi phản ứng”.')
+        return redirect('appointments:detail', pk=adm.appointment.pk)
+
+    # Center-based access control: non-admin nurses can only update at their own center
+    if request.user.role != 'admin':
+        try:
+            staff_center = request.user.staff_profile.center
+        except Exception:
+            staff_center = None
+        if staff_center and adm.appointment.center != staff_center:
+            messages.error(request, 'Bạn chỉ có thể cập nhật thông tin tiêm tại cơ sở của bạn.')
+            return redirect('appointments:detail', pk=adm.appointment.pk)
 
     # Get the nurse profile for the current user
     nurse_profile = None
@@ -216,7 +255,7 @@ def nurse_update_administration(request, adm_pk):
 
     if request.method == 'POST':
         immunization_hour = request.POST.get('immunization_hour')
-        post_vaccination_status = request.POST.get('post_vaccination_status', '')
+        post_vaccination_status = request.POST.get('post_vaccination_status', '').strip()
 
         if not immunization_hour:
             messages.error(request, 'Vui lòng nhập giờ tiêm.')
@@ -232,7 +271,23 @@ def nurse_update_administration(request, adm_pk):
             #          nurse_id = %s
             #      WHERE vaccine_administration_id = %s
 
-            messages.success(request, 'Đã cập nhật thông tin tiêm thành công.')
+            # Auto-transition appointment status based on nurse actions
+            appt = adm.appointment
+            if appt.status == 'waiting_injection':
+                # First time nurse records injection hour → move to observation
+                appt.status = 'waiting_observation'
+                appt.save(update_fields=['status'])
+                # SQL: UPDATE appointments_appointment SET status = 'waiting_observation' WHERE appointment_id = %s
+                messages.success(request, 'Đã cập nhật giờ tiêm. Lịch hẹn chuyển sang “Chờ theo dõi phản ứng” (30 phút).')
+            elif appt.status == 'waiting_observation' and post_vaccination_status:
+                # Nurse filled in reaction notes after 30-min observation → move to waiting payment
+                appt.status = 'waiting_payment'
+                appt.save(update_fields=['status'])
+                # SQL: UPDATE appointments_appointment SET status = 'waiting_payment' WHERE appointment_id = %s
+                messages.success(request, 'Đã ghi nhận phản ứng sau tiêm. Lịch hẹn chuyển sang “Chờ thanh toán”.')
+            else:
+                messages.success(request, 'Đã cập nhật thông tin tiêm thành công.')
+
             return redirect('appointments:detail', pk=adm.appointment.pk)
 
     return render(request, 'vaccines/nurse_update.html', {'adm': adm})

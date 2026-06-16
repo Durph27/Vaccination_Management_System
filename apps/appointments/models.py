@@ -25,6 +25,8 @@ class Appointment(models.Model):
         ('confirmed', 'Đã xác nhận'),
         ('waiting_exam', 'Đang chờ khám'),
         ('waiting_injection', 'Đang chờ tiêm'),
+        ('waiting_observation', 'Chờ theo dõi phản ứng'),
+        ('waiting_payment', 'Chờ thanh toán'),
         ('cancelled', 'Đã hủy'),
         ('paid', 'Đã thanh toán'),
     ]
@@ -33,6 +35,8 @@ class Appointment(models.Model):
     RECEPTIONIST_STATUSES = ['pending', 'confirmed', 'waiting_exam', 'cancelled', 'paid']
     # Statuses that doctor can set
     DOCTOR_STATUSES = ['waiting_injection']
+    # Statuses that nurse can set (via nurse_update_administration flow only)
+    NURSE_STATUSES = ['waiting_observation', 'waiting_payment']
 
     appointment_id = models.AutoField(primary_key=True)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='appointments')

@@ -146,12 +146,23 @@ def cancel_appointment(request, pk):
 
 @login_required
 def all_appointments(request):
-    """Staff views appointments — filtered to their center (admin sees all)."""
+    """Staff views appointments — filtered to their center (admin sees all).
+    Default status filter: doctor→waiting_exam, nurse→waiting_injection.
+    """
     if not request.user.is_staff_member():
         messages.error(request, 'Bạn không có quyền truy cập trang này.')
         return redirect('candidates:dashboard')
 
-    status_filter = request.GET.get('status', '')
+    # Determine default status filter per role (only when no explicit filter in URL)
+    default_status = ''
+    if request.user.role == 'doctor':
+        default_status = 'waiting_exam'
+    elif request.user.role == 'nurse':
+        default_status = 'waiting_injection'
+
+    # Use explicit URL param if provided; fall back to role default
+    status_filter = request.GET.get('status', default_status)
+
     appointments = Appointment.objects.select_related('candidate', 'center').order_by('-appointment_date')
     # SQL: SELECT a.*, c.full_name, vc.name
     #      FROM appointments_appointment a
@@ -172,18 +183,26 @@ def all_appointments(request):
     return render(request, 'appointments/all_list.html', {
         'appointments': appointments,
         'status_filter': status_filter,
+        'default_status': default_status,
         'staff_center': staff_center,
     })
 
 
 @login_required
 def update_appointment_status(request, pk):
-    """Receptionist/Admin: pending→confirmed/waiting_exam/cancelled/paid.
+    """Receptionist/Admin: pending→confirmed/waiting_exam/cancelled/waiting_payment/paid.
     Doctor/Admin: any status → waiting_injection.
     When set to 'paid', auto-create Sale records.
     """
     appointment = get_object_or_404(Appointment, pk=pk)
     # SQL: SELECT * FROM appointments_appointment WHERE appointment_id = %s LIMIT 1
+
+    # Center-based access control: non-admin staff can only manage appointments at their center
+    if request.user.role != 'admin':
+        staff_center = _get_staff_center(request.user)
+        if staff_center and appointment.center != staff_center:
+            messages.error(request, 'Bạn chỉ có thể cập nhật trạng thái lịch hẹn tại cơ sở của bạn.')
+            return redirect('appointments:detail', pk=pk)
 
     if request.method == 'POST':
         new_status = request.POST.get('status', '')

@@ -18,7 +18,7 @@
 
 <!-- Status filter tabs -->
 <div class="filter-tabs mb-4">
-  <a href="{% url 'appointments:all_list' %}" class="filter-tab {% if not status_filter %}active{% endif %}">Tất cả</a>
+  <a href="?status=" class="filter-tab {% if not status_filter %}active{% endif %}">Tất cả</a>
   <a href="?status=pending" class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">
     <i class="bi bi-clock"></i> Chờ xác nhận
   </a>
@@ -26,10 +26,16 @@
     <i class="bi bi-check-circle"></i> Đã xác nhận
   </a>
   <a href="?status=waiting_exam" class="filter-tab {% if status_filter == 'waiting_exam' %}active{% endif %}">
-    <i class="bi bi-person-lines-fill"></i> Đang chờ khám
+    <i class="bi bi-person-lines-fill"></i> Chờ khám
   </a>
   <a href="?status=waiting_injection" class="filter-tab {% if status_filter == 'waiting_injection' %}active{% endif %}">
-    <i class="bi bi-capsule-pill"></i> Đang chờ tiêm
+    <i class="bi bi-syringe"></i> Chờ tiêm
+  </a>
+  <a href="?status=waiting_observation" class="filter-tab {% if status_filter == 'waiting_observation' %}active{% endif %}">
+    <i class="bi bi-heart-pulse"></i> Theo dõi PƯ
+  </a>
+  <a href="?status=waiting_payment" class="filter-tab {% if status_filter == 'waiting_payment' %}active{% endif %}">
+    <i class="bi bi-credit-card"></i> Chờ thanh toán
   </a>
   <a href="?status=paid" class="filter-tab {% if status_filter == 'paid' %}active{% endif %}">
     <i class="bi bi-cash-coin"></i> Đã thanh toán

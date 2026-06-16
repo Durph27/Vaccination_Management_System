@@ -328,6 +328,8 @@
 .badge-confirmed        { background: #E0F0FA; color: #0A5C7F; }
 .badge-waiting_exam     { background: #EDE9FF; color: #5B21B6; }
 .badge-waiting_injection { background: #FFF0E6; color: #C2410C; }
+.badge-waiting_observation { background: #FFF7ED; color: #92400E; }
+.badge-waiting_payment  { background: #ECFDF5; color: #065F46; }
 .badge-cancelled        { background: #FDEAEA; color: #C03030; }
 .badge-paid             { background: #E0F8F0; color: #1A8060; }
 .badge-completed        { background: #E0F8F0; color: #1A8060; }

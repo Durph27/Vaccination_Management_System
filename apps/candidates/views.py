@@ -80,6 +80,23 @@ def edit_candidate(request, pk):
     candidate = get_object_or_404(Candidate, pk=pk)
     # SQL: SELECT * FROM candidates_candidate WHERE candidate_id = %s LIMIT 1
 
+    # Center-based access control: non-admin receptionists can only edit candidates
+    # who have at least one appointment at their center
+    if request.user.role != 'admin':
+        try:
+            staff_center = request.user.staff_profile.center
+        except Exception:
+            staff_center = None
+        if staff_center:
+            has_appt_at_center = Appointment.objects.filter(
+                candidate=candidate, center=staff_center
+            ).exists()
+            # SQL: SELECT 1 FROM appointments_appointment
+            #      WHERE candidate_id = %s AND center_id = %s LIMIT 1
+            if not has_appt_at_center:
+                messages.error(request, 'Bạn chỉ có thể chỉnh sửa hồ sơ người tiêm có lịch hẹn tại cơ sở của bạn.')
+                return redirect('candidates:detail', pk=pk)
+
     form = CandidateEditForm(request.POST or None, instance=candidate)
     if request.method == 'POST' and form.is_valid():
         form.save()

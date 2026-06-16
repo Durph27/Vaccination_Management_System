@@ -110,28 +110,45 @@
           </button>
         </form>
 
-        {# --- Doctor: prescribe vaccine + update to waiting_injection --- #}
+        {# --- Doctor: prescribe vaccine (only when waiting_exam) + move to waiting_injection --- #}
         {% elif request.user.is_doctor %}
+        {% if appointment.status == 'waiting_exam' %}
         <a href="{% url 'vaccines:add_administration' appointment.pk %}" class="btn-vc btn-primary-vc w-100" style="justify-content:center">
           <i class="bi bi-capsule-pill"></i> Chỉ định vaccine tiêm
         </a>
         <a href="{% url 'records:edit' appointment.candidate.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
           <i class="bi bi-file-medical"></i> Sửa hồ sơ y tế
         </a>
-        {% if appointment.status != 'waiting_injection' and appointment.status != 'paid' and appointment.status != 'cancelled' %}
         <form method="post" action="{% url 'appointments:update_status' appointment.pk %}">
           {% csrf_token %}
           <input type="hidden" name="status" value="waiting_injection">
           <button type="submit" class="btn-vc w-100" style="justify-content:center;background:#7c3aed;color:#fff">
-            <i class="bi bi-capsule-pill"></i> Chuyển sang Đang chờ tiêm
+            <i class="bi bi-syringe"></i> Chuyển sang Chờ tiêm
           </button>
         </form>
+        {% else %}
+        <a href="{% url 'records:edit' appointment.candidate.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
+          <i class="bi bi-file-medical"></i> Sửa hồ sơ y tế
+        </a>
+        <p style="color:var(--text-light);text-align:center;font-size:13px;padding:8px 0;margin:0">
+          <i class="bi bi-info-circle"></i> Chỉ định vaccine khi trạng thái là “Đang chờ khám”
+        </p>
         {% endif %}
 
-        {# --- Nurse: update vaccine administration --- #}
+        {# --- Nurse: update vaccine administration (only when waiting_injection or waiting_observation) --- #}
         {% elif request.user.is_nurse %}
+        {% if appointment.status == 'waiting_injection' or appointment.status == 'waiting_observation' %}
         {% if appointment.administrations.all %}
-        <p style="font-size:13px;color:var(--text-mid);margin:0">Chọn vaccine cần cập nhật giờ tiêm:</p>
+        {% if appointment.status == 'waiting_injection' %}
+        <div class="alert" style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#7c3aed;margin:0">
+          <i class="bi bi-syringe"></i> <strong>Bước 1:</strong> Nhập giờ tiêm thực tế — lịch hẹn sẽ chuyển sang <em>Chờ theo dõi phản ứng</em>.
+        </div>
+        {% elif appointment.status == 'waiting_observation' %}
+        <div class="alert" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#b45309;margin:0">
+          <i class="bi bi-heart-pulse"></i> <strong>Bước 2:</strong> Điền phản ứng sau 30 phút theo dõi — lịch hẹn sẽ chuyển sang <em>Chờ thanh toán</em>.
+        </div>
+        {% endif %}
+        <p style="font-size:13px;color:var(--text-mid);margin:8px 0 0">Chọn vaccine cần cập nhật:</p>
         {% for adm in appointment.administrations.all %}
         <a href="{% url 'vaccines:nurse_update' adm.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
           <i class="bi bi-capsule-pill"></i> {{ adm.vaccine.name }}
@@ -143,8 +160,13 @@
           <i class="bi bi-info-circle"></i> Chưa có vaccine nào được chỉ định
         </p>
         {% endif %}
+        {% else %}
+        <p style="color:var(--text-light);text-align:center;font-size:13px;padding:12px 0;margin:0">
+          <i class="bi bi-info-circle"></i> Không có hành động nào — Y tá chỉ thực hiện khi trạng thái là <em>Chờ tiêm</em> hoặc <em>Theo dõi phản ứng</em>.
+        </p>
+        {% endif %}
 
-        {# --- Receptionist/Admin: update status --- #}
+        {# --- Receptionist/Admin: update status (cannot set waiting_payment — nurse only) --- #}
         {% elif request.user.is_receptionist %}
         <form method="post" action="{% url 'appointments:update_status' appointment.pk %}">
           {% csrf_token %}
@@ -157,7 +179,13 @@
               <option value="cancelled" {% if appointment.status == 'cancelled' %}selected{% endif %}>Đã hủy</option>
               <option value="paid" {% if appointment.status == 'paid' %}selected{% endif %}>Đã thanh toán</option>
             </select>
-            <div class="form-text">Chọn "Đã thanh toán" để tự động tạo hóa đơn</div>
+            <div class="form-text">
+              {% if appointment.status == 'waiting_payment' %}
+                <span style="color:var(--warning,#f59e0b)"><i class="bi bi-exclamation-triangle-fill"></i> Người tiêm đang chờ thanh toán — chọn "Đã thanh toán" để xác nhận và tạo hóa đơn.</span>
+              {% else %}
+                Chọn "Đã thanh toán" để tự động tạo hóa đơn
+              {% endif %}
+            </div>
           </div>
           <button type="submit" class="btn-vc btn-primary-vc w-100" style="justify-content:center">
             <i class="bi bi-check2-circle"></i> Lưu trạng thái
