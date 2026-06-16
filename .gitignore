@@ -2,6 +2,11 @@ toc/
 toc_py314_backup_*/
 .venv/
 venv/
+env/
+ENV/
+virtualenv/
+pyvenv.cfg
+pip-selfcheck.json
 __pycache__/
 *.py[cod]
 .vscode/*
