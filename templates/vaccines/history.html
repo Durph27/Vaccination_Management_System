@@ -27,6 +27,7 @@
           <th>Ngày tiêm</th>
           <th>Trung tâm</th>
           <th>Bác sĩ</th>
+          <th>Y tá</th>
           <th>Ghi chú</th>
         </tr>
       </thead>
@@ -57,6 +58,7 @@
           </td>
           <td>{{ item.appointment.center.name|default:"—" }}</td>
           <td>{{ item.doctor.staff.name|default:"—" }}</td>
+          <td>{{ item.nurse.staff.name|default:"—" }}</td>
           <td style="color:var(--text-mid)">{{ item.notes|default:"—" }}</td>
         </tr>
         {% endfor %}
