@@ -113,12 +113,14 @@
                 <i class="bi bi-box-arrow-left"></i><span>Đăng xuất</span>
             </a>
         </div>
+        <div class="sidebar-resizer" id="sidebarResizer" role="separator" aria-orientation="vertical"
+            aria-label="Kéo để thay đổi độ rộng thanh điều hướng"></div>
     </aside>
 
     <!-- ===== MAIN CONTENT ===== -->
     <div class="main-wrapper">
         <header class="topbar">
-            <button class="sidebar-toggle" id="sidebarToggle">
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Thu gọn thanh điều hướng" title="Thu gọn thanh điều hướng">
                 <i class="bi bi-list"></i>
             </button>
             <div class="topbar-title">{% block page_title %}{% endblock %}</div>
