@@ -74,7 +74,7 @@ def vaccine_history(request):
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate,
         immunization_hour__isnull=False,
-    ).select_related('vaccine', 'appointment__center').order_by('-immunization_hour')
+    ).select_related('vaccine', 'appointment__center', 'doctor__staff', 'nurse__staff').order_by('-immunization_hour')
     # SQL: SELECT va.*, v.name, v.manufacturer, a.appointment_date, vc.name AS center_name
     #      FROM vaccines_vaccineadministration va
     #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
@@ -99,7 +99,7 @@ def candidate_vaccine_history(request, candidate_pk):
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate,
         immunization_hour__isnull=False,
-    ).select_related('vaccine', 'appointment__center').order_by('-immunization_hour')
+    ).select_related('vaccine', 'appointment__center', 'doctor__staff', 'nurse__staff').order_by('-immunization_hour')
     # SQL: SELECT va.*, v.name, v.manufacturer, a.appointment_date, vc.name AS center_name
     #      FROM vaccines_vaccineadministration va
     #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
