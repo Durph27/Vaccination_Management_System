@@ -1,5 +1,5 @@
 """
-Full database seeder for Treat or Chet.
+Full database seeder for Trick or Chet.
 Covers: VaccinationCenter, User, Staff, Doctor, Nurse, Receptionist,
         Candidate, MedicalRecord, Vaccine, VaccineStock,
         Appointment, VaccineAdministration, Sale

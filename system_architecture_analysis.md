@@ -1,8 +1,8 @@
-# 🏗️ Phân Tích Kiến Trúc Hệ Thống Treat or Chet
+# 🏗️ Phân Tích Kiến Trúc Hệ Thống Trick or Chet
 
 ## Tổng quan
 
-Hệ thống **Treat or Chet** sử dụng **Django (Python)** theo mô hình **MTV (Model - Template - View)**, tương đương với MVC truyền thống:
+Hệ thống **Trick or Chet** sử dụng **Django (Python)** theo mô hình **MTV (Model - Template - View)**, tương đương với MVC truyền thống:
 
 | MTV (Django) | MVC (Truyền thống) | Vai trò |
 |---|---|---|
