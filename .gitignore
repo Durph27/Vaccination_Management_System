@@ -1,0 +1,10 @@
+toc/
+toc_py314_backup_*/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.vscode/*
+!.vscode/settings.json
+
+config/

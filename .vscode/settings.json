@@ -1,0 +1,7 @@
+{
+  "python.defaultInterpreterPath": "D:\\TrickorChet\\vaccinems\\toc\\Scripts\\python.exe",
+  "python.analysis.extraPaths": [
+    "D:\\TrickorChet\\vaccinems"
+  ],
+  "python.terminal.activateEnvironment": true
+}

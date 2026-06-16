@@ -1,0 +1,17 @@
+{
+  "include": ["."],
+  "pythonVersion": "3.12",
+  "venvPath": ".",
+  "venv": "toc",
+  "pythonPlatform": "Windows",
+  "typeCheckingMode": "basic",
+  "extraPaths": [
+    "."
+  ],
+  "plugins": [
+    {
+      "module": "mypy_django_plugin.main",
+      "settings": { "django_settings_module": "config.settings" }
+    }
+  ]
+}
