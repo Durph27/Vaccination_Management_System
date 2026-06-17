@@ -70,11 +70,13 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Chiều cao</span>
-          <span class="detail-value">{% if medical_record.height %}{{ medical_record.height }} cm{% else %}—{% endif %}</span>
+          <span class="detail-value">{% if medical_record.height %}{{ medical_record.height }} cm{% else %}—{% endif
+            %}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Cân nặng</span>
-          <span class="detail-value">{% if medical_record.weight %}{{ medical_record.weight }} kg{% else %}—{% endif %}</span>
+          <span class="detail-value">{% if medical_record.weight %}{{ medical_record.weight }} kg{% else %}—{% endif
+            %}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Dị ứng</span>
@@ -93,7 +95,8 @@
     <div class="vc-card">
       <div class="vc-card-header">
         <span class="vc-card-title">Lịch hẹn của {{ candidate.full_name }}</span>
-        <a href="{% url 'vaccines:candidate_history' candidate.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 14px;font-size:12px">
+        <a href="{% url 'vaccines:candidate_history' candidate.pk %}" class="btn-vc btn-outline-vc"
+          style="padding:5px 14px;font-size:12px">
           <i class="bi bi-activity"></i> Lịch sử tiêm
         </a>
       </div>
@@ -118,7 +121,8 @@
               <td>{{ apt.center.name|default:"—" }}</td>
               <td><span class="badge-status badge-{{ apt.status }}">{{ apt.get_status_display }}</span></td>
               <td>
-                <a href="{% url 'appointments:detail' apt.pk %}" class="btn-vc btn-outline-vc" style="padding:5px 12px;font-size:12px">Xem</a>
+                <a href="{% url 'appointments:detail' apt.pk %}" class="btn-vc btn-outline-vc"
+                  style="padding:5px 12px;font-size:12px">Xem</a>
               </td>
             </tr>
             {% endfor %}

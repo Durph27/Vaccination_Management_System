@@ -59,7 +59,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'vaccinems_db',
         'USER': 'root',
-        'PASSWORD': '@Hlhuy11',
+        'PASSWORD': 'Hiep2712$',
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {

@@ -17,32 +17,6 @@
 <div class="row justify-content-center">
   <div class="col-lg-7">
 
-    {# Contextual step guidance banner #}
-    {% if adm.appointment.status == 'waiting_injection' %}
-    <div class="vc-card mb-4" style="border-left:4px solid #7c3aed;background:rgba(124,58,237,0.05)">
-      <div class="vc-card-body" style="padding:14px 20px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px;color:#7c3aed"><i class="bi bi-syringe"></i></span>
-          <div>
-            <div style="font-weight:700;color:#7c3aed;font-size:14px">Bước 1 — Ghi nhận giờ tiêm</div>
-            <div style="font-size:13px;color:var(--text-mid);margin-top:2px">Nhập giờ tiêm thực tế. Sau khi lưu, lịch hẹn sẽ tự động chuyển sang <strong>Chờ theo dõi phản ứng</strong> (30 phút).</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% elif adm.appointment.status == 'waiting_observation' %}
-    <div class="vc-card mb-4" style="border-left:4px solid #f59e0b;background:rgba(245,158,11,0.05)">
-      <div class="vc-card-body" style="padding:14px 20px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:22px;color:#f59e0b"><i class="bi bi-heart-pulse"></i></span>
-          <div>
-            <div style="font-weight:700;color:#b45309;font-size:14px">Bước 2 — Ghi nhận phản ứng sau 30 phút</div>
-            <div style="font-size:13px;color:var(--text-mid);margin-top:2px">Điền tình trạng phản ứng sau theo dõi. Sau khi lưu, lịch hẹn sẽ tự động chuyển sang <strong>Chờ thanh toán</strong>.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% endif %}
 
     <!-- Vaccine info summary -->
     <div class="vc-card mb-4">
@@ -84,13 +58,7 @@
               <div class="form-text">Nhập ngày và giờ tiêm thực tế</div>
             </div>
             <div class="col-12">
-              <label class="form-label fw-semibold">
-                Tình trạng sau tiêm
-                {% if adm.appointment.status == 'waiting_observation' %}
-                <span class="text-danger">*</span>
-                <span style="font-size:11px;font-weight:400;color:#b45309;margin-left:6px">(Bắt buộc để chuyển sang Chờ thanh toán)</span>
-                {% endif %}
-              </label>
+              <label class="form-label fw-semibold">Tình trạng sau tiêm</label>
               <textarea name="post_vaccination_status" class="form-control" rows="4"
                         placeholder="Ví dụ: Bình thường, không có phản ứng phụ. Hoặc: Đau nhẹ tại vị trí tiêm, sốt nhẹ 37.5°C...">{{ adm.post_vaccination_status }}</textarea>
               <div class="form-text">Ghi nhận tình trạng sức khỏe của người tiêm sau khi tiêm vaccine</div>

@@ -197,6 +197,11 @@ def update_appointment_status(request, pk):
     appointment = get_object_or_404(Appointment, pk=pk)
     # SQL: SELECT * FROM appointments_appointment WHERE appointment_id = %s LIMIT 1
 
+    # Lock: no changes once paid or cancelled
+    if appointment.status in ('paid', 'cancelled'):
+        messages.error(request, 'Lịch hẹn đã hoàn tất — không thể chỉnh sửa.')
+        return redirect('appointments:detail', pk=pk)
+
     # Center-based access control: non-admin staff can only manage appointments at their center
     if request.user.role != 'admin':
         staff_center = _get_staff_center(request.user)

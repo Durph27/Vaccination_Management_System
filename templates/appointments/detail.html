@@ -99,7 +99,14 @@
     <!-- Actions card -->
     <div class="vc-card mb-4">
       <div class="vc-card-header"><span class="vc-card-title">Hành động</span></div>
-      <div class="vc-card-body" style="display:flex;flex-direction:column;gap:12px">
+      <div class="vc-card-body">
+        {# --- Paid or Cancelled: no more actions --- #}
+        {% if appointment.status == 'paid' or appointment.status == 'cancelled' %}
+        <p style="color:var(--text-light);text-align:center;padding:12px 0;margin:0">
+          <i class="bi bi-lock-fill"></i> Lịch hẹn đã {{ appointment.get_status_display|lower }} — không thể chỉnh sửa.
+        </p>
+
+        {% else %}
 
         {# --- Candidate: cancel pending appointment --- #}
         {% if appointment.status == 'pending' and request.user.is_candidate_user %}
@@ -131,7 +138,7 @@
           <i class="bi bi-file-medical"></i> Sửa hồ sơ y tế
         </a>
         <p style="color:var(--text-light);text-align:center;font-size:13px;padding:8px 0;margin:0">
-          <i class="bi bi-info-circle"></i> Chỉ định vaccine khi trạng thái là “Đang chờ khám”
+          <i class="bi bi-info-circle"></i> Chỉ định vaccine khi trạng thái là "Đang chờ khám"
         </p>
         {% endif %}
 
@@ -139,16 +146,7 @@
         {% elif request.user.is_nurse %}
         {% if appointment.status == 'waiting_injection' or appointment.status == 'waiting_observation' %}
         {% if appointment.administrations.all %}
-        {% if appointment.status == 'waiting_injection' %}
-        <div class="alert" style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#7c3aed;margin:0">
-          <i class="bi bi-syringe"></i> <strong>Bước 1:</strong> Nhập giờ tiêm thực tế — lịch hẹn sẽ chuyển sang <em>Chờ theo dõi phản ứng</em>.
-        </div>
-        {% elif appointment.status == 'waiting_observation' %}
-        <div class="alert" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#b45309;margin:0">
-          <i class="bi bi-heart-pulse"></i> <strong>Bước 2:</strong> Điền phản ứng sau 30 phút theo dõi — lịch hẹn sẽ chuyển sang <em>Chờ thanh toán</em>.
-        </div>
-        {% endif %}
-        <p style="font-size:13px;color:var(--text-mid);margin:8px 0 0">Chọn vaccine cần cập nhật:</p>
+        <p style="font-size:13px;color:var(--text-mid);margin:0">Chọn vaccine cần cập nhật:</p>
         {% for adm in appointment.administrations.all %}
         <a href="{% url 'vaccines:nurse_update' adm.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
           <i class="bi bi-capsule-pill"></i> {{ adm.vaccine.name }}
@@ -162,7 +160,7 @@
         {% endif %}
         {% else %}
         <p style="color:var(--text-light);text-align:center;font-size:13px;padding:12px 0;margin:0">
-          <i class="bi bi-info-circle"></i> Không có hành động nào — Y tá chỉ thực hiện khi trạng thái là <em>Chờ tiêm</em> hoặc <em>Theo dõi phản ứng</em>.
+          <i class="bi bi-info-circle"></i> Y tá chỉ thực hiện khi trạng thái là <em>Chờ tiêm</em> hoặc <em>Theo dõi phản ứng</em>.
         </p>
         {% endif %}
 
@@ -201,6 +199,8 @@
           Không có hành động nào khả dụng
         </p>
         {% endif %}
+
+        {% endif %} {# end paid/cancelled guard #}
 
       </div>
     </div>
