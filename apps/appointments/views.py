@@ -241,19 +241,16 @@ def update_appointment_status(request, pk):
 
 
 def _auto_create_sales(appointment):
-    """Auto-create Sale records for each VaccineAdministration in the appointment."""
+    """Auto-create Sale record for the VaccineAdministration in the appointment."""
     from apps.sales.models import Sale
 
-    administrations = appointment.administrations.all()
-    # SQL: SELECT * FROM vaccines_vaccineadministration
-    #      WHERE appointment_id = %s
-
-    for adm in administrations:
+    if hasattr(appointment, 'administration'):
+        adm = appointment.administration
         # Only create if no sale exists yet
         if not hasattr(adm, 'sale'):
             Sale.objects.create(
                 vaccine_administration=adm,
-                total_amount=adm.vaccine.price,
+                total_amount=adm.total_price,
                 payment_method='cash',
                 status='paid',
                 paid_at=timezone.now(),
@@ -298,17 +295,25 @@ def receptionist_book_appointment(request, candidate_pk):
                 center = get_object_or_404(VaccinationCenter, pk=center_id)
                 # SQL: SELECT * FROM appointments_vaccinationcenter WHERE center_id = %s LIMIT 1
 
+                receptionist_profile = None
+                if request.user.role == 'receptionist':
+                    try:
+                        receptionist_profile = request.user.staff_profile.receptionist_profile
+                    except Exception:
+                        pass
+
                 appointment = Appointment.objects.create(
                     candidate=candidate,
                     center=center,
+                    created_by=receptionist_profile,
                     appointment_date=appointment_date,
                     appointment_time=appointment_time,
                     notes=notes,
                     status='confirmed',  # Receptionist-created appointments are auto-confirmed
                 )
                 # SQL: INSERT INTO appointments_appointment
-                #      (candidate_id, center_id, appointment_date, appointment_time, notes, status, created_at)
-                #      VALUES (%s, %s, %s, %s, %s, 'confirmed', NOW())
+                #      (candidate_id, center_id, created_by_id, appointment_date, appointment_time, notes, status, created_at)
+                #      VALUES (%s, %s, %s, %s, %s, %s, 'confirmed', NOW())
 
                 messages.success(request, f'Đã đặt lịch hẹn cho {candidate.full_name} thành công!')
                 return redirect('appointments:detail', pk=appointment.pk)

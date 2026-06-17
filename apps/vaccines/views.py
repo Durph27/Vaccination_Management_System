@@ -74,10 +74,13 @@ def vaccine_history(request):
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate,
         immunization_hour__isnull=False,
-    ).select_related('vaccine', 'appointment__center', 'doctor__staff', 'nurse__staff').order_by('-immunization_hour')
-    # SQL: SELECT va.*, v.name, v.manufacturer, a.appointment_date, vc.name AS center_name
+    ).select_related(
+        'appointment__center', 'doctor__staff', 'nurse__staff'
+    ).prefetch_related(
+        'vaccines'
+    ).order_by('-immunization_hour')
+    # SQL: SELECT va.*, a.appointment_date, vc.name AS center_name
     #      FROM vaccines_vaccineadministration va
-    #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
     #      JOIN appointments_appointment a ON va.appointment_id = a.appointment_id
     #      JOIN appointments_vaccinationcenter vc ON a.center_id = vc.center_id
     #      WHERE a.candidate_id = %s
@@ -99,10 +102,13 @@ def candidate_vaccine_history(request, candidate_pk):
     history = VaccineAdministration.objects.filter(
         appointment__candidate=candidate,
         immunization_hour__isnull=False,
-    ).select_related('vaccine', 'appointment__center', 'doctor__staff', 'nurse__staff').order_by('-immunization_hour')
-    # SQL: SELECT va.*, v.name, v.manufacturer, a.appointment_date, vc.name AS center_name
+    ).select_related(
+        'appointment__center', 'doctor__staff', 'nurse__staff'
+    ).prefetch_related(
+        'vaccines'
+    ).order_by('-immunization_hour')
+    # SQL: SELECT va.*, a.appointment_date, vc.name AS center_name
     #      FROM vaccines_vaccineadministration va
-    #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
     #      JOIN appointments_appointment a ON va.appointment_id = a.appointment_id
     #      JOIN appointments_vaccinationcenter vc ON a.center_id = vc.center_id
     #      WHERE a.candidate_id = %s
@@ -180,17 +186,23 @@ def add_vaccine_administration(request, appointment_pk):
             if stock is None or stock.quantity <= 0:
                 messages.error(request, f'Vaccine {vaccine.name} đã hết hàng tại trung tâm {appointment.center.name}.')
             else:
-                VaccineAdministration.objects.create(
-                    appointment=appointment,
-                    vaccine=vaccine,
-                    doctor=doctor_profile,
-                    dose_number=dose_number,
-                    notes=notes,
-                )
-                # SQL: INSERT INTO vaccines_vaccineadministration
-                #      (appointment_id, vaccine_id, doctor_id, nurse_id, dose_number, notes,
-                #       immunization_hour, post_vaccination_status)
-                #      VALUES (%s, %s, %s, NULL, %s, %s, NULL, '')
+                if hasattr(appointment, 'administration'):
+                    adm = appointment.administration
+                    adm.vaccines.add(vaccine)
+                    if notes:
+                        if adm.notes:
+                            adm.notes += f"\n{notes}"
+                        else:
+                            adm.notes = notes
+                    adm.save()
+                else:
+                    adm = VaccineAdministration.objects.create(
+                        appointment=appointment,
+                        doctor=doctor_profile,
+                        dose_number=dose_number,
+                        notes=notes,
+                    )
+                    adm.vaccines.add(vaccine)
 
                 # Reduce stock by 1
                 stock.quantity = F('quantity') - 1

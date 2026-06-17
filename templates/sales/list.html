@@ -35,7 +35,7 @@
             <div style="font-weight:500">{{ sale.vaccine_administration.appointment.candidate.full_name }}</div>
             <div style="color:var(--text-light);font-size:12px">{{ sale.vaccine_administration.appointment.candidate.phone|default:"—" }}</div>
           </td>
-          <td>{{ sale.vaccine_administration.vaccine.name }}</td>
+          <td>{% for v in sale.vaccine_administration.vaccines.all %}{{ v.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
           <td style="font-weight:700;color:var(--text-dark)">{{ sale.total_amount|floatformat:0 }} ₫</td>
           <td>
             {% if sale.payment_method == 'cash' %}

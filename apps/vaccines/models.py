@@ -35,8 +35,8 @@ class VaccineStock(models.Model):
 
 class VaccineAdministration(models.Model):
     vaccine_administration_id = models.AutoField(primary_key=True)
-    appointment = models.ForeignKey('appointments.Appointment', on_delete=models.CASCADE, related_name='administrations')
-    vaccine = models.ForeignKey(Vaccine, on_delete=models.CASCADE)
+    appointment = models.OneToOneField('appointments.Appointment', on_delete=models.CASCADE, related_name='administration')
+    vaccines = models.ManyToManyField(Vaccine, related_name='administrations')
     doctor = models.ForeignKey('staff.Doctor', on_delete=models.SET_NULL, null=True, blank=True, related_name='examinations')
     nurse = models.ForeignKey('staff.Nurse', on_delete=models.SET_NULL, null=True, blank=True, related_name='injections')
     immunization_hour = models.DateTimeField(verbose_name='Giờ tiêm', null=True, blank=True)
@@ -48,6 +48,16 @@ class VaccineAdministration(models.Model):
         verbose_name = 'Lần tiêm'
         verbose_name_plural = 'Lịch sử tiêm'
 
+    @property
+    def total_price(self):
+        return sum(v.price for v in self.vaccines.all())
+
+    @property
+    def vaccine(self):
+        """Backward compatibility helper for single vaccine references."""
+        return self.vaccines.first()
+
     def __str__(self):
-        return f"{self.appointment.candidate.full_name} - {self.vaccine.name} - {self.immunization_hour}"
+        v_names = ", ".join([v.name for v in self.vaccines.all()])
+        return f"{self.appointment.candidate.full_name} - {v_names} - {self.immunization_hour}"
 

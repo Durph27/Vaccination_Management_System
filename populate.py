@@ -468,17 +468,13 @@ def populate_appointments(candidates, centers, doctors, nurses, vaccines):
 
                 adm = VaccineAdministration.objects.create(
                     appointment=appointment,
-                    vaccine=vaccine,
                     doctor=doctor,
                     nurse=nurse,
                     immunization_hour=imm_hour,
                     dose_number=1,
                     notes='Tiêm bình thường, không có phản ứng bất thường.',
                 )
-                # SQL: INSERT INTO vaccines_vaccineadministration
-                #      (appointment_id, vaccine_id, doctor_id, nurse_id,
-                #       immunization_hour, dose_number, notes, post_vaccination_status)
-                #      VALUES (%s, %s, %s, %s, %s, 1, %s, '')
+                adm.vaccines.add(vaccine)
                 created_adms += 1
 
                 Sale.objects.create(

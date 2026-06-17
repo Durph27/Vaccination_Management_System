@@ -27,7 +27,11 @@
         </div>
         <div class="detail-row">
           <span class="detail-label">Vaccine</span>
-          <span class="detail-value">{{ adm.vaccine.name }} ({{ adm.vaccine.manufacturer }})</span>
+          <span class="detail-value">
+            {% for vac in adm.vaccines.all %}
+              {{ vac.name }} ({{ vac.manufacturer }}){% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Liều thứ</span>

@@ -54,16 +54,24 @@
     </div>
 
     <!-- Vaccine administrations -->
-    {% if appointment.administrations.all %}
+    {% if appointment.administration %}
     <div class="vc-card">
       <div class="vc-card-header"><span class="vc-card-title">Vaccine đã chỉ định</span></div>
       <div class="vc-card-body" style="padding-top:12px">
-        {% for adm in appointment.administrations.all %}
+        {% with adm=appointment.administration %}
         <div class="adm-item">
           <div class="adm-icon"><i class="bi bi-capsule-pill"></i></div>
           <div class="adm-info">
-            <div style="font-weight:600">{{ adm.vaccine.name }}</div>
-            <div style="color:var(--text-light);font-size:12px">{{ adm.vaccine.manufacturer }} · Liều {{ adm.dose_number }}</div>
+            <div style="font-weight:600">
+              {% for vac in adm.vaccines.all %}
+                {{ vac.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </div>
+            <div style="color:var(--text-light);font-size:12px">
+              {% for vac in adm.vaccines.all %}
+                {{ vac.manufacturer }}{% if not forloop.last %} & {% endif %}
+              {% endfor %} · Liều {{ adm.dose_number }}
+            </div>
             {% if adm.notes %}<div style="color:var(--text-mid);font-size:13px;margin-top:4px"><i class="bi bi-chat-text"></i> {{ adm.notes }}</div>{% endif %}
             {% if adm.immunization_hour %}
             <div style="color:var(--success,#22c55e);font-size:12px;margin-top:4px">
@@ -81,7 +89,7 @@
             {% endif %}
           </div>
           <div style="text-align:right">
-            <div style="font-weight:700;color:var(--primary)">{{ adm.vaccine.price|floatformat:0 }} ₫</div>
+            <div style="font-weight:700;color:var(--primary)">{{ adm.total_price|floatformat:0 }} ₫</div>
             {% if request.user.is_nurse %}
             <a href="{% url 'vaccines:nurse_update' adm.pk %}" class="btn-vc btn-outline-vc mt-2" style="padding:4px 10px;font-size:11px">
               <i class="bi bi-capsule-pill"></i> Cập nhật
@@ -89,7 +97,7 @@
             {% endif %}
           </div>
         </div>
-        {% endfor %}
+        {% endwith %}
       </div>
     </div>
     {% endif %}
@@ -145,14 +153,14 @@
         {# --- Nurse: update vaccine administration (only when waiting_injection or waiting_observation) --- #}
         {% elif request.user.is_nurse %}
         {% if appointment.status == 'waiting_injection' or appointment.status == 'waiting_observation' %}
-        {% if appointment.administrations.all %}
-        <p style="font-size:13px;color:var(--text-mid);margin:0">Chọn vaccine cần cập nhật:</p>
-        {% for adm in appointment.administrations.all %}
+        {% if appointment.administration %}
+        {% with adm=appointment.administration %}
+        <p style="font-size:13px;color:var(--text-mid);margin:0">Cập nhật lượt tiêm:</p>
         <a href="{% url 'vaccines:nurse_update' adm.pk %}" class="btn-vc btn-outline-vc w-100" style="justify-content:center">
-          <i class="bi bi-capsule-pill"></i> {{ adm.vaccine.name }}
+          <i class="bi bi-capsule-pill"></i> {% for vac in adm.vaccines.all %}{{ vac.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
           {% if adm.immunization_hour %}<span style="font-size:11px;margin-left:6px">(Đã tiêm)</span>{% endif %}
         </a>
-        {% endfor %}
+        {% endwith %}
         {% else %}
         <p style="color:var(--text-light);text-align:center;padding:12px 0;font-size:13px">
           <i class="bi bi-info-circle"></i> Chưa có vaccine nào được chỉ định

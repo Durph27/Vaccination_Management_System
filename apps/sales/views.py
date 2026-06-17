@@ -14,17 +14,16 @@ def sale_list(request):
 
     sales = Sale.objects.select_related(
         'vaccine_administration__appointment__candidate',
-        'vaccine_administration__vaccine',
+    ).prefetch_related(
+        'vaccine_administration__vaccines',
     ).order_by('-created_at')
     # SQL: SELECT sl.*, va.dose_number, va.immunization_hour,
     #             a.appointment_date, a.status AS appt_status,
-    #             c.full_name AS candidate_name,
-    #             v.name AS vaccine_name, v.price
+    #             c.full_name AS candidate_name
     #      FROM sales_sale sl
     #      JOIN vaccines_vaccineadministration va ON sl.vaccine_administration_id = va.vaccine_administration_id
     #      JOIN appointments_appointment a ON va.appointment_id = a.appointment_id
     #      JOIN candidates_candidate c ON a.candidate_id = c.candidate_id
-    #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
     #      ORDER BY sl.created_at DESC
 
     return render(request, 'sales/list.html', {'sales': sales})
@@ -45,7 +44,8 @@ def my_sales(request):
         status='paid',
     ).select_related(
         'vaccine_administration__appointment__candidate',
-        'vaccine_administration__vaccine',
+    ).prefetch_related(
+        'vaccine_administration__vaccines',
     ).order_by('-created_at')
     # SQL: SELECT sl.*, va.dose_number, va.immunization_hour,
     #             a.appointment_date,
@@ -69,9 +69,10 @@ def sale_detail(request, pk):
         Sale.objects.select_related(
             'vaccine_administration__appointment__candidate',
             'vaccine_administration__appointment__center',
-            'vaccine_administration__vaccine',
             'vaccine_administration__doctor__staff',
             'vaccine_administration__nurse__staff',
+        ).prefetch_related(
+            'vaccine_administration__vaccines',
         ),
         pk=pk,
     )
@@ -79,7 +80,6 @@ def sale_detail(request, pk):
     #             a.appointment_date, a.appointment_time, a.status AS appt_status,
     #             c.full_name AS candidate_name, c.phone,
     #             vc.name AS center_name, vc.address,
-    #             v.name AS vaccine_name, v.price,
     #             ds.name AS doctor_name,
     #             ns.name AS nurse_name
     #      FROM sales_sale sl
@@ -87,7 +87,6 @@ def sale_detail(request, pk):
     #      JOIN appointments_appointment a ON va.appointment_id = a.appointment_id
     #      JOIN candidates_candidate c ON a.candidate_id = c.candidate_id
     #      JOIN appointments_vaccinationcenter vc ON a.center_id = vc.center_id
-    #      JOIN vaccines_vaccine v ON va.vaccine_id = v.vaccine_id
     #      LEFT JOIN staff_doctor d ON va.doctor_id = d.id
     #      LEFT JOIN staff_staff ds ON d.staff_id = ds.staff_id
     #      LEFT JOIN staff_nurse n ON va.nurse_id = n.id

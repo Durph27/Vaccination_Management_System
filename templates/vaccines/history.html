@@ -36,21 +36,25 @@
         <tr>
           <td>
             <div style="display:flex;align-items:center;gap:10px">
-              {% if item.vaccine.image %}
-              <img src="{{ item.vaccine.image.url }}" style="width:36px;height:36px;object-fit:cover;border-radius:8px" alt="">
+              {% with first_vac=item.vaccines.first %}
+              {% if first_vac and first_vac.image %}
+              <img src="{{ first_vac.image.url }}" style="width:36px;height:36px;object-fit:cover;border-radius:8px" alt="">
               {% else %}
               <div style="width:36px;height:36px;background:var(--accent-light);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:16px">
                 <i class="bi bi-capsule-pill"></i>
               </div>
               {% endif %}
               <div>
-                <div style="font-weight:600">{{ item.vaccine.name }}</div>
-                <div style="color:var(--text-light);font-size:12px">{{ item.vaccine.manufacturer }}</div>
+                {% for vac in item.vaccines.all %}
+                <div style="font-weight:600">{{ vac.name }}</div>
+                <div style="color:var(--text-light);font-size:12px;margin-bottom:4px">{{ vac.manufacturer }}</div>
+                {% endfor %}
               </div>
+              {% endwith %}
             </div>
           </td>
           <td>
-            <span class="badge-status badge-confirmed">Liều {{ item.dose_number }}/{{ item.vaccine.required_doses }}</span>
+            <span class="badge-status badge-confirmed">Liều {{ item.dose_number }}</span>
           </td>
           <td>
             <div style="font-weight:500">{{ item.immunization_hour|date:"d/m/Y" }}</div>

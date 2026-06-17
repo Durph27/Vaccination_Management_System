@@ -36,30 +36,36 @@
     </div>
 
     <!-- Existing administrations -->
-    {% if appointment.administrations.all %}
+    {% if appointment.administration %}
     <div class="vc-card mb-4">
       <div class="vc-card-header">
         <span class="vc-card-title"><i class="bi bi-capsule-pill me-2"></i>Vaccine đã chỉ định</span>
       </div>
       <div class="vc-card-body" style="padding-top:12px">
-        {% for adm in appointment.administrations.all %}
+        {% with adm=appointment.administration %}
+        {% for vac in adm.vaccines.all %}
         <div class="adm-item">
           <div class="adm-icon"><i class="bi bi-capsule-pill"></i></div>
           <div class="adm-info">
-            <div style="font-weight:600">{{ adm.vaccine.name }}</div>
-            <div style="color:var(--text-light);font-size:12px">{{ adm.vaccine.manufacturer }} · Liều {{ adm.dose_number }}</div>
-            {% if adm.notes %}<div style="color:var(--text-mid);font-size:13px;margin-top:4px">{{ adm.notes }}</div>{% endif %}
+            <div style="font-weight:600">{{ vac.name }}</div>
+            <div style="color:var(--text-light);font-size:12px">{{ vac.manufacturer }} · Liều {{ adm.dose_number }}</div>
+            {% if forloop.first and adm.notes %}
+              <div style="color:var(--text-mid);font-size:13px;margin-top:4px">{{ adm.notes }}</div>
+            {% endif %}
           </div>
           <div style="text-align:right">
-            <div style="font-weight:700;color:var(--primary)">{{ adm.vaccine.price|floatformat:0 }} ₫</div>
-            {% if adm.immunization_hour %}
-            <div style="color:var(--text-light);font-size:12px">Đã tiêm: {{ adm.immunization_hour|date:"d/m/Y H:i" }}</div>
-            {% else %}
-            <span class="badge-status badge-pending" style="font-size:11px">Chưa tiêm</span>
+            <div style="font-weight:700;color:var(--primary)">{{ vac.price|floatformat:0 }} ₫</div>
+            {% if forloop.first %}
+              {% if adm.immunization_hour %}
+                <div style="color:var(--text-light);font-size:12px">Đã tiêm: {{ adm.immunization_hour|date:"d/m/Y H:i" }}</div>
+              {% else %}
+                <span class="badge-status badge-pending" style="font-size:11px">Chưa tiêm</span>
+              {% endif %}
             {% endif %}
           </div>
         </div>
         {% endfor %}
+        {% endwith %}
       </div>
     </div>
     {% endif %}

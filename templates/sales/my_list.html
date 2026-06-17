@@ -31,7 +31,7 @@
         <tr>
           <td style="font-weight:600;color:var(--primary)">HD#{{ sale.pk }}</td>
           <td>
-            <div style="font-weight:500">{{ sale.vaccine_administration.vaccine.name }}</div>
+            <div style="font-weight:500">{% for v in sale.vaccine_administration.vaccines.all %}{{ v.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
             <div style="color:var(--text-light);font-size:12px">Liều {{ sale.vaccine_administration.dose_number }}</div>
           </td>
           <td style="font-weight:700">{{ sale.total_amount|floatformat:0 }} ₫</td>

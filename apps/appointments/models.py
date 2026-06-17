@@ -41,6 +41,14 @@ class Appointment(models.Model):
     appointment_id = models.AutoField(primary_key=True)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE, related_name='appointments')
     center = models.ForeignKey(VaccinationCenter, on_delete=models.SET_NULL, null=True, related_name='appointments')
+    created_by = models.ForeignKey(
+        'staff.Receptionist',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='created_appointments',
+        verbose_name='Lễ tân tạo lịch hẹn'
+    )
     appointment_date = models.DateField(verbose_name='Ngày hẹn')
     appointment_time = models.TimeField(verbose_name='Giờ hẹn')
     notes = models.TextField(blank=True, verbose_name='Ghi chú')

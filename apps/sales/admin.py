@@ -3,7 +3,7 @@ from .models import Sale
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
-    list_display = ['sale_id', 'get_candidate', 'get_vaccine', 'total_amount', 'payment_method', 'status', 'created_at']
+    list_display = ['sale_id', 'get_candidate', 'get_vaccines', 'total_amount', 'payment_method', 'status', 'created_at']
     list_filter = ['status', 'payment_method']
     search_fields = ['vaccine_administration__appointment__candidate__full_name']
 
@@ -11,6 +11,6 @@ class SaleAdmin(admin.ModelAdmin):
         return obj.vaccine_administration.appointment.candidate.full_name
     get_candidate.short_description = 'Người tiêm'
 
-    def get_vaccine(self, obj):
-        return obj.vaccine_administration.vaccine.name
-    get_vaccine.short_description = 'Vaccine'
+    def get_vaccines(self, obj):
+        return ", ".join([v.name for v in obj.vaccine_administration.vaccines.all()])
+    get_vaccines.short_description = 'Vaccines'

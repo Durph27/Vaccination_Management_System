@@ -15,10 +15,14 @@ class VaccineStockAdmin(admin.ModelAdmin):
 
 @admin.register(VaccineAdministration)
 class VaccineAdministrationAdmin(admin.ModelAdmin):
-    list_display = ['get_candidate', 'vaccine', 'dose_number', 'immunization_hour', 'doctor', 'nurse']
-    list_filter = ['vaccine', 'dose_number']
-    search_fields = ['appointment__candidate__full_name', 'vaccine__name']
+    list_display = ['get_candidate', 'get_vaccines', 'dose_number', 'immunization_hour', 'doctor', 'nurse']
+    list_filter = ['dose_number']
+    search_fields = ['appointment__candidate__full_name', 'vaccines__name']
 
     def get_candidate(self, obj):
         return obj.appointment.candidate.full_name
     get_candidate.short_description = 'Người tiêm'
+
+    def get_vaccines(self, obj):
+        return ", ".join([v.name for v in obj.vaccines.all()])
+    get_vaccines.short_description = 'Vaccines'
