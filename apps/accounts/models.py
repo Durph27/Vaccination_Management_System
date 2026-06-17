@@ -39,4 +39,7 @@ class User(AbstractUser):
         return self.role == self.ROLE_ADMIN
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.get_role_display()})"
+        name = self.get_full_name() or self.username
+        get_role = getattr(self, 'get_role_display', None)
+        role = get_role() if get_role else self.role
+        return f"{name} ({role})"
