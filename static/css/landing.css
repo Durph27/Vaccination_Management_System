@@ -7,6 +7,7 @@
 
 .landing-page {
   --guest-header-offset: 82px;
+  --landing-info-band-height: 154px;
   min-height: 100vh;
   color: var(--text-dark);
   background: #fff;
@@ -19,8 +20,10 @@
 }
 
 .landing-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 60;
   padding: 0;
   background:
@@ -133,7 +136,10 @@
 
 .landing-hero {
   position: relative;
-  padding: 92px 0 96px;
+  min-height: 100vh;
+  padding: calc(var(--guest-header-offset) + 72px) 0 calc(var(--landing-info-band-height) + 72px);
+  display: flex;
+  align-items: center;
   background:
     linear-gradient(90deg, rgba(6,61,85,0.92) 0%, rgba(6,61,85,0.74) 44%, rgba(6,61,85,0.42) 100%),
     url("../images/successful-medical-team.jpg") center 42% / cover no-repeat;
@@ -273,6 +279,9 @@
 }
 
 .landing-info-band {
+  position: relative;
+  z-index: 2;
+  margin-top: calc(-1 * var(--landing-info-band-height));
   background: var(--primary);
   color: #fff;
 }
@@ -283,7 +292,7 @@
 }
 
 .info-item {
-  min-height: 132px;
+  min-height: var(--landing-info-band-height);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -355,9 +364,18 @@
 }
 
 #services {
+  min-height: 100vh;
+  scroll-margin-top: 0;
   background:
     linear-gradient(90deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.86) 58%, rgba(255,255,255,0.72) 100%),
     url("../images/rmg-article-vaccination-for-adults.jpg") right center / cover no-repeat;
+}
+
+#why,
+#process,
+#resources {
+  min-height: 100vh;
+  scroll-margin-top: 0;
 }
 
 .section-heading {

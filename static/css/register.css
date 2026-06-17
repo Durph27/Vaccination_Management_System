@@ -152,17 +152,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-.register-card-icon {
-  width: 52px;
-  height: 52px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  color: var(--primary);
-  background: var(--accent-light);
-  font-size: 24px;
-}
 
 .register-card-header h2 {
   margin: 0 0 4px;
@@ -297,6 +286,7 @@
   }
 
   .landing-hero {
+    min-height: auto;
     padding: 44px 0 62px;
   }
 
